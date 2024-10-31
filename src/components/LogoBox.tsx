@@ -10,7 +10,7 @@ const LogoBox = () => {
 		<>
 			<Link to="/" className="logo-box">
 				<div className="logo-light">
-					<img src={logo} className="logo-lg h-[22px]" alt="Light logo" />
+					<img src={logo} className="logo-xl h-[40px]" alt="Light logo" />
 					<img src={logoSm} className="logo-sm h-[22px]" alt="Small logo" />
 				</div>
 

@@ -36,7 +36,7 @@ interface UserData {
 // }
 
 interface State {
-	user?: UserData | {}
+	user?: UserData | null
 	loading?: boolean
 	value?: boolean
 }
