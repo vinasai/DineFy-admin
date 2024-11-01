@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// OwnersTableList.tsx
+import React, { useEffect, useState } from "react";
+import EditOwner from "./EditOwner"; // Import the EditOwner component
 import AddNewRestaurant from "./AddNewOwners";
 import {
   Button,
@@ -14,14 +16,17 @@ import {
   CardContent,
   Typography,
   IconButton,
-  Chip, // Import Chip component
+  Chip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { ArrowCircleRightSharp } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/api/client";
+import { useGetOwnerApiQuery } from "@/redux/api/owner/ownerApi";
+//import { useGetOwnerApiQuery } from "@/redux/api/owner/ownerApi";
 
-interface Restaurant {
+export interface Restaurant {
   id: number;
   name: string;
   email: string;
@@ -51,11 +56,27 @@ const sampleData: Restaurant[] = [
 ];
 
 const OwnersTableList: React.FC = () => {
-  const history = useNavigate(); // Initialize navigate
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+  const history = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedOwner, setSelectedOwner] = useState<Restaurant | null>(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [data, setData] = useState<any>([]);
+  // useEffect(() => {
+  //   // Function to fetch data from a specific Supabase table
+  //   const fetchData = async () => {
+  //     // Replace 'my_table' with your table name
+  //     const { data: owner, error } = await supabase.from("owner").select("*");
+  //     console.log(owner);
+  //     setData(owner);
+  //   };
 
+  //   fetchData();
+  // }, []); // Empty dependency array means this effect runs only once
+
+  const { data: owners } =  useGetOwnerApiQuery("");
+  console.log(owners);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -70,15 +91,34 @@ const OwnersTableList: React.FC = () => {
     setPage(0);
   };
 
-  // Function to handle navigation to the details page
-  const navigateToDetails = (id: number) => {
-    history(`/apps/restaurant/${id}`); // Navigate to the route with the owner's ID
+  // Function to open EditOwner modal with selected owner data
+  const handleEditClick = (owner: Restaurant) => {
+    setSelectedOwner(owner);
+    setIsEditModalOpen(true);
   };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedOwner(null);
+  };
+
+  //console.log(owners);
+  const handleEditSave = (updatedOwner: Restaurant) => {
+    // Handle the save logic, e.g., updating state or calling API
+    const updatedData = sampleData.map((owner) =>
+      owner.id === updatedOwner.id ? updatedOwner : owner
+    );
+    console.log("Updated Data:", updatedData); // Replace this with your actual save/update logic
+    handleEditClose();
+  };
+
+  function navigateToDetails(id: number): void {
+    history(`/apps/owner/${id}`);
+  }
 
   return (
     <Card className="shadow-lg p-4 mb-6">
       <CardContent>
-        {/* Header Section */}
         <div className="flex justify-between items-center mb-4">
           <Typography variant="h5" component="h1" className="font-bold">
             Restaurant Owner Details
@@ -88,7 +128,6 @@ const OwnersTableList: React.FC = () => {
           </Button>
         </div>
 
-        {/* Restaurant Table */}
         <TableContainer component={Paper} className="mb-4 shadow">
           <Table>
             <TableHead>
@@ -113,31 +152,27 @@ const OwnersTableList: React.FC = () => {
                     <TableCell>{restaurant.country}</TableCell>
                     <TableCell>{restaurant.address}</TableCell>
                     <TableCell>
-                      {/* Map restaurant names to Chips */}
                       <div className="flex flex-wrap gap-2">
                         {restaurant.restaurant.map((res, index) => (
                           <Chip
                             key={index}
                             label={res}
                             variant="outlined"
-                            color="primary" // Change color as needed
+                            color="primary"
                           />
                         ))}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {/* Action Icons */}
                       <div className="flex gap-5">
                         <IconButton
                           onClick={() => navigateToDetails(restaurant.id)}
                         >
-                          <VisibilityIcon color="primary" />
+                          <ArrowCircleRightSharp color="primary" />
                         </IconButton>
-
-                        <IconButton>
+                        <IconButton onClick={() => handleEditClick(restaurant)}>
                           <EditIcon className=" text-blue-600" />
                         </IconButton>
-
                         <IconButton>
                           <DeleteIcon className=" text-red-500" />
                         </IconButton>
@@ -149,7 +184,6 @@ const OwnersTableList: React.FC = () => {
           </Table>
         </TableContainer>
 
-        {/* Pagination */}
         <TablePagination
           component="div"
           count={sampleData.length}
@@ -162,8 +196,14 @@ const OwnersTableList: React.FC = () => {
         />
       </CardContent>
 
-      {/* Modal for Adding New Restaurant */}
       {isModalOpen && <AddNewRestaurant onClose={closeModal} />}
+      {isEditModalOpen && selectedOwner && (
+        <EditOwner
+          ownerData={selectedOwner}
+          onClose={handleEditClose}
+          onSave={handleEditSave}
+        />
+      )}
     </Card>
   );
 };

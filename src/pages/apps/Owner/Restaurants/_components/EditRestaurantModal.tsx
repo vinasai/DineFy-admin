@@ -1,14 +1,10 @@
-// EditRestaurantModal.tsx
 import React from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
   Button,
-  FormControlLabel,
-  Checkbox,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 
@@ -35,7 +31,6 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
   onClose,
   onSave,
 }) => {
-  // Initialize states
   const [name, setName] = React.useState<string>(restaurant?.name || "");
   const [description, setDescription] = React.useState<string>(
     restaurant?.description || ""
@@ -93,8 +88,7 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
 
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      setImageFile(file);
+      setImageFile(acceptedFiles[0]);
     }
   };
 
@@ -105,94 +99,88 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
     });
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Edit Restaurant</DialogTitle>
       <DialogContent>
         <div
           {...getRootProps()}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            border: "2px dashed #3e60d5",
-            borderRadius: "8px",
-            padding: "16px",
-            width: 200, // Reduced width
-            height: 200, // Reduced height
-            textAlign: "center",
-            cursor: "pointer",
-            marginBottom: "16px",
-            backgroundColor: isDragActive
-              ? "#e1f5fe"
-              : isDragReject
-              ? "#ffebee"
-              : "#fff",
-          }}
+          className={`flex justify-center items-center border-2 ${
+            isDragActive ? "border-blue-400 bg-blue-100" : "border-gray-300"
+          } rounded-lg p-4 mb-4 cursor-pointer`}
+          style={{ width: 200, height: 200 }}
         >
           <input {...getInputProps()} />
           {previewImage ? (
             <img
               src={previewImage as string}
               alt="Preview"
-              style={{
-                width: "150px", // Fixed width for image
-                height: "150px", // Fixed height for image
-                borderRadius: "8px",
-              }}
+              className="w-36 h-36 rounded"
             />
           ) : (
-            <p>
-              Please upload an image by dragging and dropping it here or
-              clicking to select.
+            <p className="text-center text-gray-500">
+              Drag & drop or click to upload an image
             </p>
           )}
         </div>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Restaurant Name"
-          fullWidth
-          variant="outlined"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <TextField
-          margin="dense"
-          label="Description"
-          fullWidth
-          variant="outlined"
-          multiline
-          rows={3}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <TextField
-          margin="dense"
-          label="Address"
-          fullWidth
-          variant="outlined"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
-        <TextField
-          margin="dense"
-          label="Country"
-          fullWidth
-          variant="outlined"
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
+
+        <div className="space-y-4">
+          {/* Name Field */}
+          <div>
+            <label className="block font-semibold mb-1">Restaurant Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+            />
+          </div>
+
+          {/* Description Field */}
+          <div>
+            <label className="block font-semibold mb-1">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+              rows={3}
+            />
+          </div>
+
+          {/* Address Field */}
+          <div>
+            <label className="block font-semibold mb-1">Address</label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+            />
+          </div>
+
+          {/* Country Field */}
+          <div>
+            <label className="block font-semibold mb-1">Country</label>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+            />
+          </div>
+
+          {/* Active Checkbox */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              color="primary"
+              className="mr-2"
             />
-          }
-          label="Active"
-        />
+            <label className="font-semibold">Active</label>
+          </div>
+        </div>
       </DialogContent>
+
       <DialogActions>
         <Button onClick={onClose} color="primary">
           Cancel

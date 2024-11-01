@@ -3,8 +3,10 @@ import { Navigate, Route, RouteProps } from "react-router-dom";
 
 // components
 import PrivateRoute from "./PrivateRoute";
+
+import Owner from "@/pages/apps/Owner/Owner";
 import Restaurant from "@/pages/apps/Restaurant/Restaurant";
-import Restaurants from "@/pages/apps/Restaurant/Restaurants/Restaurants";
+import Restaurants from "@/pages/apps/Owner/Restaurants/Restaurants";
 
 // lazy load all the views
 
@@ -214,7 +216,25 @@ const dashboardRoutes: RoutesProps = {
 };
 
 // Apps
-const calendarAppRoutes: RoutesProps = {
+const ownerAppRoutes: RoutesProps = {
+  path: "/apps/owner",
+  name: "Owner",
+  route: PrivateRoute,
+  roles: ["Admin"],
+  icon: "Owner",
+  element: <Owner />,
+  header: "Apps",
+  children: [
+    {
+      path: "/apps/owner/:id", // Updated to remove the leading slash
+      name: "Restaurants",
+      element: <Restaurants />,
+      route: PrivateRoute,
+    },
+  ],
+};
+
+const restaurantAppRoutes: RoutesProps = {
   path: "/apps/restaurant",
   name: "Restaurant",
   route: PrivateRoute,
@@ -222,14 +242,6 @@ const calendarAppRoutes: RoutesProps = {
   icon: "calendar",
   element: <Restaurant />,
   header: "Apps",
-  children: [
-    {
-      path: "/apps/restaurant/:id", // Updated to remove the leading slash
-      name: "Restaurants",
-      element: <Restaurants />,
-      route: PrivateRoute,
-    },
-  ],
 };
 
 const chatAppRoutes: RoutesProps = {
@@ -307,7 +319,8 @@ const fileAppRoutes: RoutesProps = {
 };
 
 const appRoutes = [
-  calendarAppRoutes,
+  ownerAppRoutes,
+  restaurantAppRoutes,
   chatAppRoutes,
   emailAppRoutes,
   tasksAppRoutes,

@@ -1,7 +1,5 @@
-import RestaurantList from "./_components/RestaurantList";
-
 const Restaurant = () => {
-  return <RestaurantList />;
+  return <div>Restaurant</div>;
 };
 
 export default Restaurant;

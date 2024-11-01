@@ -1,31 +1,38 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
-import createSagaMiddleware from 'redux-saga'
+import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import createSagaMiddleware from "redux-saga";
 
 // reducers
-import Layout from './layout/reducers'
-import Auth from './auth/reducers'
+import Layout from "./layout/reducers";
+import Auth from "./auth/reducers";
 
 // saga
-import rootSaga from './sagas'
+import rootSaga from "./sagas";
+import apiSlice from "./api/apiSlice";
 
 // create the saga middleware
-const sagaMiddleware = createSagaMiddleware()
-const middleware = [sagaMiddleware]
+const sagaMiddleware = createSagaMiddleware();
 
 // mount it on the store
 export const store = configureStore({
-	reducer: {
-		Auth: Auth,
-		Layout: Layout,
-	} as any,
+  reducer: {
+    Auth: Auth,
+    Layout: Layout,
+    [apiSlice.reducerPath]: apiSlice.reducer,
+  } as any,
 
-	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(middleware),
-})
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiSlice.middleware, sagaMiddleware), // Add apiSlice.middleware here
+});
 
 // run the saga
-sagaMiddleware.run(rootSaga)
+sagaMiddleware.run(rootSaga);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action>
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  RootState,
+  unknown,
+  Action
+>;
