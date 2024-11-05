@@ -25,6 +25,7 @@
     "@hookform/resolvers": "^3.1.1",
     "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
+    "@react-google-maps/api": "^2.20.3",
     "@reduxjs/toolkit": "^1.9.5",
     "@supabase/supabase-js": "^2.46.1",
     "@tanstack/match-sorter-utils": "^8.19.4",

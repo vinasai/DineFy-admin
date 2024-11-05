@@ -8,15 +8,18 @@ import {
   IconButton,
   Box,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  useCreateOwnerApiMutation,
+  useGetOwnerApiQuery,
+} from "@/redux/api/owner/ownerApi"; // Import the mutation
 
 interface AddNewOwnersProps {
   onClose: () => void;
 }
 
 interface FormData {
-  id: number;
   name: string;
   email: string;
   password: string;
@@ -27,7 +30,6 @@ interface FormData {
 
 const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
   const {
-    control,
     handleSubmit,
     formState: { errors },
     setValue,
@@ -35,10 +37,22 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
   } = useForm<FormData>();
 
   const [restaurants, setRestaurants] = useState<string[]>([""]);
+  const { refetch } = useGetOwnerApiQuery("");
+  const [createOwner] = useCreateOwnerApiMutation(); // Use mutation hook for creating an owner
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    onClose();
+  const onSubmit = async (data: FormData) => {
+    try {
+      const response = await createOwner(data);
+      refetch();
+      if ("data" in response) {
+        console.log("Owner created successfully:", response.data);
+        onClose(); // Close the modal after successful submission
+      } else if ("error" in response) {
+        console.error("Failed to create owner:", response.error);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
   };
 
   const addRestaurantField = () => {
@@ -63,7 +77,6 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
       </DialogTitle>
 
       <DialogContent className="space-y-4">
-        {/* Name Field */}
         <div>
           <label className="block mb-1 font-semibold">Name</label>
           <input
@@ -75,7 +88,6 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
           )}
         </div>
 
-        {/* Email Field */}
         <div>
           <label className="block mb-1 font-semibold">Email</label>
           <input
@@ -93,7 +105,6 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
           )}
         </div>
 
-        {/* Country Field */}
         <div>
           <label className="block mb-1 font-semibold">Country</label>
           <input
@@ -105,7 +116,6 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
           )}
         </div>
 
-        {/* Address Field */}
         <div>
           <label className="block mb-1 font-semibold">Address</label>
           <input

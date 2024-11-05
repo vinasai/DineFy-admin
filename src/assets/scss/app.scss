@@ -19,12 +19,6 @@ File: Main Css File
 @import "structure/sidenav";
 @import "structure/topbar";
 
-input,
-select,
-textarea {
-  @apply border border-gray-300 rounded focus:border-gray-400 focus:ring-0 outline-none;
-}
-
 // Components
 @import "components/reboot";
 @import "components/buttons";
