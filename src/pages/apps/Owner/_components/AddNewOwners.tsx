@@ -74,7 +74,11 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
   };
 
   const removeRestaurantField = (index: number) => {
-    setRestaurants((prev) => prev.filter((_, i) => i !== index));
+    setRestaurants((prev) => {
+      const updatedRestaurants = prev.filter((_, i) => i !== index);
+      setValue("restaurant", updatedRestaurants); // Update the form value
+      return updatedRestaurants;
+    });
   };
 
   const handleRestaurantChange = (
@@ -85,7 +89,7 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
     const newRestaurants = [...restaurants];
     newRestaurants[index][field] = value;
     setRestaurants(newRestaurants);
-    setValue("restaurant", newRestaurants);
+    setValue("restaurant", newRestaurants); // Ensure form data is updated
   };
 
   const ownerData = watch(["name", "email", "country", "address"]);
