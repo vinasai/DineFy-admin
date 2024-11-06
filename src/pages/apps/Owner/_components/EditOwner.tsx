@@ -10,12 +10,11 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { Restaurant } from "./OwnersTableList";
 
 interface EditOwnerProps {
-  ownerData: Restaurant;
+  ownerData: any;
   onClose: () => void;
-  onSave: (updatedOwner: Restaurant) => void;
+  onSave: (updatedOwner: any) => void;
 }
 
 const EditOwner: React.FC<EditOwnerProps> = ({
@@ -43,7 +42,7 @@ const EditOwner: React.FC<EditOwnerProps> = ({
 
   const handleRemoveRestaurant = (index: number) => {
     const updatedRestaurants = editedData.restaurant.filter(
-      (_res, i) => i !== index
+      (_res: any, i: any) => i !== index
     );
     setEditedData({ ...editedData, restaurant: updatedRestaurants });
   };
@@ -121,7 +120,7 @@ const EditOwner: React.FC<EditOwnerProps> = ({
           </IconButton>
 
           <div>
-            {editedData?.restaurant?.map((res, index) => (
+            {editedData?.restaurant?.map((res: any, index: number) => (
               <div
                 key={index}
                 style={{

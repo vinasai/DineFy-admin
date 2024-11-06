@@ -7,13 +7,14 @@ import {
   Button,
   IconButton,
   Box,
+  Typography,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   useCreateOwnerApiMutation,
   useGetOwnerApiQuery,
-} from "@/redux/api/owner/ownerApi"; // Import the mutation
+} from "@/redux/api/owner/ownerApi";
 
 interface AddNewOwnersProps {
   onClose: () => void;
@@ -22,10 +23,14 @@ interface AddNewOwnersProps {
 interface FormData {
   name: string;
   email: string;
-  password: string;
   country: string;
   address: string;
-  restaurant: string[];
+  restaurant: {
+    name: string;
+    address: string;
+    email: string;
+    contact: string;
+  }[];
 }
 
 const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
@@ -34,11 +39,17 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
     formState: { errors },
     setValue,
     register,
+    watch,
+    trigger,
   } = useForm<FormData>();
 
-  const [restaurants, setRestaurants] = useState<string[]>([""]);
+  const [step, setStep] = useState(1);
+  const [restaurants, setRestaurants] = useState([
+    { name: "", address: "", email: "", contact: "" },
+  ]);
+
   const { refetch } = useGetOwnerApiQuery("");
-  const [createOwner] = useCreateOwnerApiMutation(); // Use mutation hook for creating an owner
+  const [createOwner] = useCreateOwnerApiMutation();
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -46,7 +57,7 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
       refetch();
       if ("data" in response) {
         console.log("Owner created successfully:", response.data);
-        onClose(); // Close the modal after successful submission
+        onClose();
       } else if ("error" in response) {
         console.error("Failed to create owner:", response.error);
       }
@@ -56,121 +67,268 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
   };
 
   const addRestaurantField = () => {
-    setRestaurants((prev) => [...prev, ""]);
+    setRestaurants((prev) => [
+      ...prev,
+      { name: "", address: "", email: "", contact: "" },
+    ]);
   };
 
   const removeRestaurantField = (index: number) => {
     setRestaurants((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleRestaurantChange = (index: number, value: string) => {
+  const handleRestaurantChange = (
+    index: number,
+    field: keyof FormData["restaurant"][0],
+    value: string
+  ) => {
     const newRestaurants = [...restaurants];
-    newRestaurants[index] = value;
+    newRestaurants[index][field] = value;
     setRestaurants(newRestaurants);
     setValue("restaurant", newRestaurants);
   };
 
+  const ownerData = watch(["name", "email", "country", "address"]);
+  const restaurantData = watch("restaurant");
+
+  const handleNextStep = async () => {
+    const isValid = await trigger(
+      step === 1 ? ["name", "email", "country", "address"] : "restaurant"
+    );
+    if (isValid) setStep((prev) => prev + 1);
+  };
+
   return (
     <Dialog open={true} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle className="text-xl font-semibold pb-11 outline-none">
-        Add New Owner
+      <DialogTitle className="text-xl font-semibold pb-4 border-b border-gray-200">
+        {step === 1
+          ? "Add Owner Information"
+          : step === 2
+          ? "Add Restaurant Information"
+          : "Review & Submit"}
       </DialogTitle>
 
-      <DialogContent className="space-y-4">
-        <div>
-          <label className="block mb-1 font-semibold">Name</label>
-          <input
-            {...register("name", { required: "Name is required" })}
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 font-semibold">Email</label>
-          <input
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: "Enter a valid email",
-              },
-            })}
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 font-semibold">Country</label>
-          <input
-            {...register("country", { required: "Country is required" })}
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-          {errors.country && (
-            <p className="text-red-500 text-sm">{errors.country.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 font-semibold">Address</label>
-          <input
-            {...register("address", { required: "Address is required" })}
-            className="w-full border border-gray-300 p-2 rounded"
-          />
-          {errors.address && (
-            <p className="text-red-500 text-sm">{errors.address.message}</p>
-          )}
-        </div>
-
-        {/* Restaurants Fields */}
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Restaurants</h3>
-          {restaurants.map((restaurant, index) => (
-            <Box key={index} display="flex" alignItems="center" mb={2}>
+      <DialogContent className="p-6 space-y-6 bg-gray-50">
+        {step === 1 && (
+          <div className="space-y-4">
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700">
+                Name
+              </label>
               <input
-                value={restaurant}
-                onChange={(e) => handleRestaurantChange(index, e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded mr-2"
+                {...register("name", { required: "Name is required" })}
+                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter owner's name"
               />
-              <IconButton
-                color="error"
-                onClick={() => removeRestaurantField(index)}
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700">
+                Email
+              </label>
+              <input
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: "Enter a valid email",
+                  },
+                })}
+                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter owner's email"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700">
+                Country
+              </label>
+              <input
+                {...register("country", { required: "Country is required" })}
+                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter owner's country"
+              />
+              {errors.country && (
+                <p className="text-red-500 text-sm">{errors.country.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700">
+                Address
+              </label>
+              <input
+                {...register("address", { required: "Address is required" })}
+                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter owner's address"
+              />
+              {errors.address && (
+                <p className="text-red-500 text-sm">{errors.address.message}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">Restaurants</h3>
+            {restaurants.map((restaurant, index) => (
+              <Box
+                key={index}
+                className="p-4 mb-4 border border-gray-200 rounded-md bg-white shadow-sm space-y-2"
               >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          ))}
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={addRestaurantField}
-          >
-            Add Restaurant
-          </Button>
-        </div>
+                <div>
+                  <label className="block mb-1 font-semibold text-gray-700">
+                    Restaurant Name
+                  </label>
+                  <input
+                    value={restaurant.name}
+                    onChange={(e) =>
+                      handleRestaurantChange(index, "name", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter restaurant name"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 font-semibold text-gray-700">
+                    Restaurant Address
+                  </label>
+                  <input
+                    value={restaurant.address}
+                    onChange={(e) =>
+                      handleRestaurantChange(index, "address", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter restaurant address"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 font-semibold text-gray-700">
+                    Restaurant Email
+                  </label>
+                  <input
+                    value={restaurant.email}
+                    onChange={(e) =>
+                      handleRestaurantChange(index, "email", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter restaurant email"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 font-semibold text-gray-700">
+                    Contact Number
+                  </label>
+                  <input
+                    value={restaurant.contact}
+                    onChange={(e) =>
+                      handleRestaurantChange(index, "contact", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter contact number"
+                  />
+                </div>
+                <IconButton
+                  color="error"
+                  onClick={() => removeRestaurantField(index)}
+                  className="self-end"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            ))}
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={addRestaurantField}
+              className="self-start"
+            >
+              Add Another Restaurant
+            </Button>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <Typography variant="h6" gutterBottom>
+              Review Owner Information
+            </Typography>
+            <p>
+              <strong>Name:</strong> {ownerData[0]}
+            </p>
+            <p>
+              <strong>Email:</strong> {ownerData[1]}
+            </p>
+            <p>
+              <strong>Country:</strong> {ownerData[2]}
+            </p>
+            <p>
+              <strong>Address:</strong> {ownerData[3]}
+            </p>
+
+            <Typography variant="h6" gutterBottom style={{ marginTop: "1rem" }}>
+              Review Restaurants Information
+            </Typography>
+            {restaurantData &&
+              restaurantData.map((restaurant, index) => (
+                <Box
+                  key={index}
+                  className="p-4 mb-2 border border-gray-200 rounded-md bg-gray-100"
+                >
+                  <p>
+                    <strong>Restaurant {index + 1}:</strong>
+                  </p>
+                  <p>
+                    <strong>Name:</strong> {restaurant.name}
+                  </p>
+                  <p>
+                    <strong>Address:</strong> {restaurant.address}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {restaurant.email}
+                  </p>
+                  <p>
+                    <strong>Contact:</strong> {restaurant.contact}
+                  </p>
+                </Box>
+              ))}
+          </div>
+        )}
       </DialogContent>
 
-      <DialogActions className="px-6 py-4">
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          color="error"
-          className="border-red-500 text-red-500 hover:bg-red-100"
-        >
+      <DialogActions className="px-6 py-4 bg-gray-100 border-t border-gray-200">
+        <Button onClick={onClose} variant="outlined" color="secondary">
           Close
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit(onSubmit)}
-        >
-          Save
-        </Button>
+        {step > 1 && (
+          <Button
+            onClick={() => setStep((prev) => prev - 1)}
+            variant="outlined"
+            color="primary"
+          >
+            Back
+          </Button>
+        )}
+        {step < 3 ? (
+          <Button onClick={handleNextStep} variant="contained" color="primary">
+            Next
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Submit
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

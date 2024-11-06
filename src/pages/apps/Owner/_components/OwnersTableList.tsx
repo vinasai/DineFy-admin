@@ -28,15 +28,14 @@ import {
   useDeleteOwnerApiMutation,
 } from "@/redux/api/owner/ownerApi";
 
-// Updated interface to match the new owner data structure
 export interface Owner {
-  id: string; // UUID as string from the database
+  id: string;
   name: string;
   country: string;
   contact_no: string;
   address: string;
   active: boolean;
-  created_at: string; // Store timestamp as string for display purposes
+  created_at: string;
 }
 
 const OwnersTableList: React.FC = () => {

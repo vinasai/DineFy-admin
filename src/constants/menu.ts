@@ -62,6 +62,20 @@ const MENU_ITEMS: MenuItemTypes[] = [
     icon: "ri-hotel-line",
     url: "/apps/restaurant",
   },
+  {
+    key: "apps-restaurant",
+    label: "User Management",
+    isTitle: false,
+    icon: "ri-user-line",
+    url: "/apps/users",
+  },
+  {
+    key: "apps-restaurant",
+    label: "Restaurant Search",
+    isTitle: false,
+    icon: "ri-search-line",
+    url: "/apps/hotel-search",
+  },
   // {
   // 	key: 'apps-chat',
   // 	label: 'Chat',

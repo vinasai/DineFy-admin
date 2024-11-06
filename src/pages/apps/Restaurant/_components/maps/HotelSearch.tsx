@@ -11,6 +11,7 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
+import { API_KEY } from "@/config";
 
 // Define the interface for restaurant data
 export interface Restaurant {
@@ -42,7 +43,7 @@ const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "", 
+    googleMapsApiKey: String(API_KEY),
     libraries: LIBRARIES,
   });
 
@@ -55,7 +56,7 @@ const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
     );
 
     const request = {
-      location: { lat: 43.6532, lng: -79.3832 }, 
+      location: { lat: 43.6532, lng: -79.3832 },
       radius: 5000,
       keyword: searchTerm,
       type: "restaurant",
