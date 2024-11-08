@@ -8,6 +8,7 @@ import Owner from "@/pages/apps/Owner/Owner";
 import Restaurant from "@/pages/apps/Restaurant/Restaurant";
 import Restaurants from "@/pages/apps/Owner/Restaurants/Restaurants";
 import Search from "@/pages/apps/RestaurantSearch/RestaurantSearch";
+import Users from "@/pages/apps/Users/Users";
 
 // lazy load all the views
 
@@ -255,6 +256,16 @@ const restaurantSearch: RoutesProps = {
   header: "Apps",
 };
 
+const userManagement: RoutesProps = {
+  path: "/apps/users",
+  name: "User Management",
+  route: PrivateRoute,
+  roles: ["Admin"],
+  icon: "calendar",
+  element: <Users />,
+  header: "Apps",
+};
+
 const chatAppRoutes: RoutesProps = {
   path: "/apps/chat",
   name: "Chat",
@@ -338,6 +349,7 @@ const appRoutes = [
   kanbanAppRoutes,
   fileAppRoutes,
   restaurantSearch,
+  userManagement,
 ];
 
 // pages

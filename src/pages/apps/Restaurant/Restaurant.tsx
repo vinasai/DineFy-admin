@@ -105,18 +105,6 @@ const Restaurant = () => {
     handleNewRestaurantClose();
   };
 
-  // This function will be called when a hotel is selected
-  // const handleSelectHotel = (hotel: any) => {
-  //   setNewRestaurant({
-  //     ...newRestaurant,
-  //     name: hotel.name,
-  //     address: hotel.vicinity,
-  //     // Optionally, set country based on the hotel or leave it as is
-  //     country: "Canada", // Or derive it based on the hotel data
-  //     imageUrl: hotel?.photos?.[0]?.getUrl() || "", // Assume the first photo URL (may need adjustment)
-  //   });
-  // };
-
   return (
     <div className="flex justify-center">
       <Card className="shadow-lg w-full max-w-5xl mt-4">
