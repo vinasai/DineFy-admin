@@ -92,11 +92,10 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject } =
-    useDropzone({
-      onDrop,
-      accept: { "image/*": [] },
-    });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+  });
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">

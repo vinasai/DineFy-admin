@@ -1,23 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Button,
-  TextField,
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
+import { useDropzone } from "react-dropzone";
 
 interface NewRestaurant {
-  id: number;
+  id: string; // UUID for the restaurant
   name: string;
-  description: string;
-  address: string;
+  about: string;
+  thumbnail_photo?: File | null;
+  contact_number: string;
+  contact_person_name: string;
+  contact_person_position: string;
+  restaurant_category: string;
+  location: string;
   country: string;
-  imageUrl: string; // Field kept for manual entry
+  owner: string; // UUID for the owner
+  facility: object; // For JSON fields, assuming it's an object
+  gallery: object; // For JSON fields
+  avg_budget: string;
+  place_id: string;
+  subscription: string;
+  avg_rating: number;
+  icon: string;
+  website: string;
+  like: number;
   isActive: boolean;
 }
 
@@ -35,17 +49,48 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
   const { handleSubmit, control, reset } = useForm<NewRestaurant>({
     defaultValues: {
       name: "",
-      description: "",
-      address: "",
+      about: "",
+      contact_number: "",
+      contact_person_name: "",
+      contact_person_position: "",
+      restaurant_category: "",
+      location: "",
       country: "",
-      imageUrl: "",
+      owner: "",
+      facility: {},
+      gallery: {},
+      avg_budget: "",
+      place_id: "",
+      subscription: "",
+      avg_rating: 0,
+      icon: "",
+      website: "",
+      like: 0,
       isActive: true,
     },
   });
 
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+
+  const onDrop = (acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      setUploadedImage(acceptedFiles[0]);
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
+
   const onSubmit = (data: NewRestaurant) => {
-    onSave(data);
+    onSave({
+      ...data,
+      thumbnail_photo: uploadedImage,
+    });
     reset();
+    setUploadedImage(null);
     onClose();
   };
 
@@ -59,36 +104,116 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
             name="name"
             control={control}
             render={({ field }) => (
-              <TextField
-                {...field}
-                label="Restaurant Name"
-                fullWidth
-                required
-              />
+              <div>
+                <label>Restaurant Name:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
             )}
           />
 
-          {/* Description Field */}
+          {/* About Field */}
           <Controller
-            name="description"
+            name="about"
             control={control}
             render={({ field }) => (
-              <TextField
-                {...field}
-                label="Description"
-                fullWidth
-                multiline
-                rows={3}
-              />
+              <div>
+                <label>About:</label>
+                <textarea
+                  {...field}
+                  rows={3}
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
             )}
           />
 
-          {/* Address Field */}
+          {/* Contact Number Field */}
           <Controller
-            name="address"
+            name="contact_number"
             control={control}
             render={({ field }) => (
-              <TextField {...field} label="Address" fullWidth required />
+              <div>
+                <label>Contact Number:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Contact Person Name Field */}
+          <Controller
+            name="contact_person_name"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Contact Person Name:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Contact Person Position Field */}
+          <Controller
+            name="contact_person_position"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Contact Person Position:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Restaurant Category Field */}
+          <Controller
+            name="restaurant_category"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Restaurant Category:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Location Field */}
+          <Controller
+            name="location"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Location:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
             )}
           />
 
@@ -97,18 +222,159 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
             name="country"
             control={control}
             render={({ field }) => (
-              <TextField {...field} label="Country" fullWidth required />
+              <div>
+                <label>Country:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
             )}
           />
 
-          {/* Image URL Field */}
+          {/* Avg Budget Field */}
           <Controller
-            name="imageUrl"
+            name="avg_budget"
             control={control}
             render={({ field }) => (
-              <TextField {...field} label="Image URL" fullWidth />
+              <div>
+                <label>Average Budget:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
             )}
           />
+
+          {/* Place ID Field */}
+          <Controller
+            name="place_id"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Place ID:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Subscription Field */}
+          <Controller
+            name="subscription"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Subscription Type:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Avg Rating Field */}
+          <Controller
+            name="avg_rating"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Average Rating:</label>
+                <input
+                  {...field}
+                  type="number"
+                  step="0.1"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Icon Field */}
+          <Controller
+            name="icon"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Icon:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Website Field */}
+          <Controller
+            name="website"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Website:</label>
+                <input
+                  {...field}
+                  type="text"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Like Field */}
+          <Controller
+            name="like"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label>Likes:</label>
+                <input
+                  {...field}
+                  type="number"
+                  required
+                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                />
+              </div>
+            )}
+          />
+
+          {/* Image Dropzone */}
+          <div
+            {...getRootProps()}
+            style={{
+              border: "2px dashed #ddd",
+              borderRadius: "4px",
+              padding: "16px",
+              textAlign: "center",
+              cursor: "pointer",
+              marginTop: "8px",
+            }}
+          >
+            <input {...getInputProps()} />
+            {isDragActive ? (
+              <p>Drop the image here...</p>
+            ) : uploadedImage ? (
+              <p>{uploadedImage.name}</p>
+            ) : (
+              <p>Drag and drop an image here, or click to select one</p>
+            )}
+          </div>
 
           {/* Active Status Checkbox */}
           <Controller
