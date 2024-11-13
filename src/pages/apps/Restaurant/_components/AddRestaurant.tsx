@@ -1,22 +1,23 @@
-// AddRestaurant.tsx
-
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Button,
+  TextField,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { useDropzone } from "react-dropzone";
+import { useForm, Controller } from "react-hook-form";
 
 interface NewRestaurant {
+  id: number;
   name: string;
   description: string;
   address: string;
   country: string;
-  imageUrl: string;
+  imageUrl: string; // Field kept for manual entry
   isActive: boolean;
 }
 
@@ -31,7 +32,7 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
   onClose,
   onSave,
 }) => {
-  const { handleSubmit, reset } = useForm<NewRestaurant>({
+  const { handleSubmit, control, reset } = useForm<NewRestaurant>({
     defaultValues: {
       name: "",
       description: "",
@@ -42,26 +43,8 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
     },
   });
 
-  const [previewImage, setPreviewImage] = useState<string | ArrayBuffer | null>(
-    null
-  );
-
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviewImage(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-  });
-
   const onSubmit = (data: NewRestaurant) => {
-    onSave({ ...data, imageUrl: previewImage as string });
+    onSave(data);
     reset();
     onClose();
   };
@@ -71,26 +54,73 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
       <DialogTitle>Add New Restaurant</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Dropzone for Image Upload */}
-          <div
-            {...getRootProps()}
-            className={`flex flex-col items-center justify-center border-2 ${
-              isDragActive ? "border-blue-400 bg-blue-100" : "border-gray-300"
-            } rounded-lg p-4 mb-4 cursor-pointer`}
-          >
-            <input {...getInputProps()} />
-            {previewImage ? (
-              <img
-                src={previewImage as string}
-                alt="Preview"
-                className="w-36 h-36 rounded"
+          {/* Name Field */}
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Restaurant Name"
+                fullWidth
+                required
               />
-            ) : (
-              <p className="text-center text-gray-500">
-                Drag & drop or click to upload an image
-              </p>
             )}
-          </div>
+          />
+
+          {/* Description Field */}
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Description"
+                fullWidth
+                multiline
+                rows={3}
+              />
+            )}
+          />
+
+          {/* Address Field */}
+          <Controller
+            name="address"
+            control={control}
+            render={({ field }) => (
+              <TextField {...field} label="Address" fullWidth required />
+            )}
+          />
+
+          {/* Country Field */}
+          <Controller
+            name="country"
+            control={control}
+            render={({ field }) => (
+              <TextField {...field} label="Country" fullWidth required />
+            )}
+          />
+
+          {/* Image URL Field */}
+          <Controller
+            name="imageUrl"
+            control={control}
+            render={({ field }) => (
+              <TextField {...field} label="Image URL" fullWidth />
+            )}
+          />
+
+          {/* Active Status Checkbox */}
+          <Controller
+            name="isActive"
+            control={control}
+            render={({ field }) => (
+              <FormControlLabel
+                control={<Checkbox {...field} checked={field.value} />}
+                label="Active"
+              />
+            )}
+          />
         </form>
       </DialogContent>
 

@@ -8,16 +8,12 @@ import {
   Grid,
   IconButton,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import EditRestaurantModal from "./_components/EditRestaurantModal";
-import HotelSearch from "./_components/maps/HotelSearch";
+import AddRestaurant from "./_components/AddRestaurant";
 
 interface Restaurant {
   id: number;
@@ -68,15 +64,6 @@ const Restaurant = () => {
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(
     null
   );
-  const [newRestaurant, setNewRestaurant] = useState<any>({
-    id: 0, // ID would be generated in a real application
-    name: "",
-    description: "",
-    address: "",
-    country: "",
-    imageUrl: "",
-    isActive: true,
-  });
 
   const handleEditClick = (restaurant: Restaurant) => {
     setCurrentRestaurant(restaurant);
@@ -89,25 +76,16 @@ const Restaurant = () => {
 
   const handleNewRestaurantClose = () => {
     setNewRestaurantOpen(false);
-    setNewRestaurant({
-      id: 0,
-      name: "",
-      description: "",
-      address: "",
-      country: "",
-      imageUrl: "",
-      isActive: true,
-    });
   };
 
-  const handleSaveNewRestaurant = () => {
+  const handleSaveNewRestaurant = (newRestaurant: Restaurant) => {
     console.log("New Restaurant Data:", newRestaurant);
-    handleNewRestaurantClose();
+    setNewRestaurantOpen(false);
   };
 
   return (
     <div className="flex justify-center">
-      <Card className="shadow-lg w-full max-w-5xl mt-4">
+      <Card className="shadow-lg w-full  mt-4">
         <CardContent>
           <div className="flex justify-between items-center mb-4">
             <Typography variant="h5" component="h2" gutterBottom>
@@ -125,7 +103,7 @@ const Restaurant = () => {
           <Grid container spacing={4}>
             {sampleRestaurants.map((restaurant) => (
               <Grid item xs={12} sm={6} md={4} key={restaurant.id}>
-                <Card className="shadow-md h-[450px] hover:shadow-xl transition-shadow duration-200">
+                <Card className="shadow-md  hover:shadow-xl transition-shadow duration-200">
                   <CardMedia
                     component="img"
                     height="200"
@@ -179,21 +157,11 @@ const Restaurant = () => {
       </Card>
 
       {/* Add New Restaurant Modal */}
-      <Dialog open={newRestaurantOpen} onClose={handleNewRestaurantClose}>
-        <DialogTitle>Add New Restaurant</DialogTitle>
-        <DialogContent>
-          {/* Integrating Hotel Search */}
-          <HotelSearch />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleNewRestaurantClose} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveNewRestaurant} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddRestaurant
+        open={newRestaurantOpen}
+        onClose={handleNewRestaurantClose}
+        onSave={handleSaveNewRestaurant}
+      />
 
       {/* Edit Modal */}
       <EditRestaurantModal
