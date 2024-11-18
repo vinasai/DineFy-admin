@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
 import { API_KEY } from "@/config"; // Make sure to replace with your actual API_KEY
+import { useCreateRestaurantApiMutation } from "@/redux/api/restaurant/restaurantApiSlice";
 
 // Define the interface for restaurant data
 export interface Restaurant {
@@ -46,7 +47,7 @@ const RestaurantSearch: React.FC<{
 
   useLoadScript({
     googleMapsApiKey: String(API_KEY),
-    libraries: LIBRARIES, 
+    libraries: LIBRARIES,
   });
 
   const handleSearch = (value: string) => {
@@ -226,14 +227,29 @@ const RestaurantSearch: React.FC<{
 const Search: React.FC = () => {
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
+  const [createRestaurantApi] = useCreateRestaurantApiMutation();
 
   const handleSelectRestaurant = (restaurant: Restaurant | null) => {
     setSelectedRestaurant(restaurant);
   };
 
-  const handleAddToDatabase = () => {
+  const handleAddToDatabase = async () => {
     if (!selectedRestaurant) return;
     console.log("Adding restaurant to database:", selectedRestaurant);
+
+    const { name, price_level, vicinity, place_id } = selectedRestaurant;
+    try {
+      // Add restaurant to database here
+      await createRestaurantApi({
+        name,
+        avg_budget: price_level,
+        place_id,
+        location: vicinity,
+      }).unwrap();
+      console.log("restuarant added succesfully");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

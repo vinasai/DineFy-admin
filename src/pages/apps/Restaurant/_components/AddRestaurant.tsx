@@ -12,7 +12,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useDropzone } from "react-dropzone";
 
 interface NewRestaurant {
-  id: string; // UUID for the restaurant
+  id: string;
   name: string;
   about: string;
   thumbnail_photo?: File | null;
@@ -22,9 +22,11 @@ interface NewRestaurant {
   restaurant_category: string;
   location: string;
   country: string;
-  owner: string; // UUID for the owner
-  facility: object; // For JSON fields, assuming it's an object
-  gallery: object; // For JSON fields
+  owner: string;
+  foodAndDining: object; // Separate section for food and dining checkboxes
+  family: object; // Separate section for family checkboxes
+  entertainment: object; // Separate section for entertainment checkboxes
+  gallery: object;
   avg_budget: string;
   place_id: string;
   subscription: string;
@@ -57,7 +59,9 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
       location: "",
       country: "",
       owner: "",
-      facility: {},
+      foodAndDining: {},
+      family: {},
+      entertainment: {},
       gallery: {},
       avg_budget: "",
       place_id: "",
@@ -94,12 +98,40 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
     onClose();
   };
 
+  // Options for checkboxes grouped in sections
+  const foodAndDiningOptions = [
+    "Patio",
+    "Halal foods",
+    "Gluten-free foods",
+    "Birthday celebration",
+    "Buffet",
+    "Reservations",
+    "Birthday Discounts",
+  ];
+
+  const familyOptions = [
+    "Family rooms",
+    "Diaper change room",
+    "Kids play area",
+    "Highchair for kids",
+  ];
+
+  const entertainmentOptions = [
+    "DJ",
+    "Music",
+    "TV",
+    "Pool table",
+    "Live band",
+    "Free parking",
+    "Conference room",
+  ];
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Add New Restaurant</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Name Field */}
+          {/* Existing fields for basic restaurant details */}
           <Controller
             name="name"
             control={control}
@@ -353,6 +385,84 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
               </div>
             )}
           />
+
+          {/* Food and Dining Section */}
+          <div>
+            <h3>Food and Dining</h3>
+            {foodAndDiningOptions.map((option) => (
+              <Controller
+                key={option}
+                name={`foodAndDining.${option}`}
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={field.value || false}
+                        onChange={
+                          (e) => field.onChange(e.target.checked) // directly update field value
+                        }
+                      />
+                    }
+                    label={option}
+                  />
+                )}
+              />
+            ))}
+          </div>
+
+          {/* Family Section */}
+          <div>
+            <h3>Family</h3>
+            {familyOptions.map((option) => (
+              <Controller
+                key={option}
+                name={`family.${option}`}
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={field.value || false}
+                        onChange={
+                          (e) => field.onChange(e.target.checked) // directly update field value
+                        }
+                      />
+                    }
+                    label={option}
+                  />
+                )}
+              />
+            ))}
+          </div>
+
+          {/* Entertainment Section */}
+          <div>
+            <h3>Entertainment</h3>
+            {entertainmentOptions.map((option) => (
+              <Controller
+                key={option}
+                name={`entertainment.${option}`}
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={field.value || false}
+                        onChange={
+                          (e) => field.onChange(e.target.checked) // directly update field value
+                        }
+                      />
+                    }
+                    label={option}
+                  />
+                )}
+              />
+            ))}
+          </div>
 
           {/* Image Dropzone */}
           <div

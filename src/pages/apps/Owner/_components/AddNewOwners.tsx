@@ -8,6 +8,8 @@ import {
   IconButton,
   Box,
   Typography,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -15,6 +17,7 @@ import {
   useCreateOwnerApiMutation,
   useGetOwnerApiQuery,
 } from "@/redux/api/owner/ownerApi";
+import { useGetRestaurantApiQuery } from "@/redux/api/restaurant/restaurantApiSlice";
 
 interface AddNewOwnersProps {
   onClose: () => void;
@@ -24,10 +27,10 @@ interface FormData {
   name: string;
   email: string;
   country: string;
-  address: string;
+  location: string;
   restaurant: {
     name: string;
-    address: string;
+    location: string;
     email: string;
     contact: string;
   }[];
@@ -45,11 +48,25 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
 
   const [step, setStep] = useState(1);
   const [restaurants, setRestaurants] = useState([
-    { name: "", address: "", email: "", contact: "" },
+    { name: "", location: "", email: "", contact: "" },
   ]);
 
   const { refetch } = useGetOwnerApiQuery("");
   const [createOwner] = useCreateOwnerApiMutation();
+  const { data: restaurantsDetails = [] } = useGetRestaurantApiQuery("");
+
+  // Function to handle autocomplete selection
+  const handleRestaurantSelection = (
+    index: number,
+    selectedRestaurant: any
+  ) => {
+    if (selectedRestaurant) {
+      handleRestaurantChange(index, "name", selectedRestaurant.name);
+      handleRestaurantChange(index, "location", selectedRestaurant.location);
+      handleRestaurantChange(index, "email", selectedRestaurant.email);
+      handleRestaurantChange(index, "contact", selectedRestaurant.contact);
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -69,7 +86,7 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
   const addRestaurantField = () => {
     setRestaurants((prev) => [
       ...prev,
-      { name: "", address: "", email: "", contact: "" },
+      { name: "", location: "", email: "", contact: "" },
     ]);
   };
 
@@ -92,12 +109,12 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
     setValue("restaurant", newRestaurants); // Ensure form data is updated
   };
 
-  const ownerData = watch(["name", "email", "country", "address"]);
+  const ownerData = watch(["name", "email", "country", "location"]);
   const restaurantData = watch("restaurant");
 
   const handleNextStep = async () => {
     const isValid = await trigger(
-      step === 1 ? ["name", "email", "country", "address"] : "restaurant"
+      step === 1 ? ["name", "email", "country", "location"] : "restaurant"
     );
     if (isValid) setStep((prev) => prev + 1);
   };
@@ -168,12 +185,14 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
                 Address
               </label>
               <input
-                {...register("address", { required: "Address is required" })}
+                {...register("location", { required: "Address is required" })}
                 className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter owner's address"
               />
-              {errors.address && (
-                <p className="text-red-500 text-sm">{errors.address.message}</p>
+              {errors.location && (
+                <p className="text-red-500 text-sm">
+                  {errors.location.message}
+                </p>
               )}
             </div>
           </div>
@@ -191,13 +210,20 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
                   <label className="block mb-1 font-semibold text-gray-700">
                     Restaurant Name
                   </label>
-                  <input
-                    value={restaurant.name}
-                    onChange={(e) =>
-                      handleRestaurantChange(index, "name", e.target.value)
-                    }
-                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter restaurant name"
+                  <Autocomplete
+                    options={restaurantsDetails} // Data from API
+                    getOptionLabel={(option: any) => option.name} // Display name in dropdown
+                    onChange={(_, value) =>
+                      handleRestaurantSelection(index, value)
+                    } // Handle selection
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Search restaurant name"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    )}
                   />
                 </div>
                 <div>
@@ -205,9 +231,9 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
                     Restaurant Address
                   </label>
                   <input
-                    value={restaurant.address}
+                    value={restaurant.location}
                     onChange={(e) =>
-                      handleRestaurantChange(index, "address", e.target.value)
+                      handleRestaurantChange(index, "location", e.target.value)
                     }
                     className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter restaurant address"
@@ -293,7 +319,7 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
                     <strong>Name:</strong> {restaurant.name}
                   </p>
                   <p>
-                    <strong>Address:</strong> {restaurant.address}
+                    <strong>Address:</strong> {restaurant.location}
                   </p>
                   <p>
                     <strong>Email:</strong> {restaurant.email}
