@@ -239,32 +239,7 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
                     placeholder="Enter restaurant address"
                   />
                 </div>
-                <div>
-                  <label className="block mb-1 font-semibold text-gray-700">
-                    Restaurant Email
-                  </label>
-                  <input
-                    value={restaurant.email}
-                    onChange={(e) =>
-                      handleRestaurantChange(index, "email", e.target.value)
-                    }
-                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter restaurant email"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold text-gray-700">
-                    Contact Number
-                  </label>
-                  <input
-                    value={restaurant.contact}
-                    onChange={(e) =>
-                      handleRestaurantChange(index, "contact", e.target.value)
-                    }
-                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter contact number"
-                  />
-                </div>
+
                 <IconButton
                   color="error"
                   onClick={() => removeRestaurantField(index)}
@@ -320,12 +295,6 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
                   </p>
                   <p>
                     <strong>Address:</strong> {restaurant.location}
-                  </p>
-                  <p>
-                    <strong>Email:</strong> {restaurant.email}
-                  </p>
-                  <p>
-                    <strong>Contact:</strong> {restaurant.contact}
                   </p>
                 </Box>
               ))}

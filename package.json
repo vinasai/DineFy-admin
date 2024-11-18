@@ -35,6 +35,7 @@
     "axios": "^0.21.1",
     "axios-mock-adapter": "^1.19.0",
     "chart.js": "^4.3.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.9",
     "google-maps-react": "^2.0.6",
     "gridjs": "^6.0.6",

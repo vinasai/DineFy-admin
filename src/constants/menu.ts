@@ -20,48 +20,68 @@ const MENU_ITEMS: MenuItemTypes[] = [
     isTitle: true,
   },
   {
-    key: "dashboard",
-    label: "Dashboards",
+    key: "apps-restaurant",
+    label: "DashBoard",
     isTitle: false,
-    icon: "ri-home-4-line",
-    badge: {
-      variant: "bg-success rounded-full",
-      text: "2",
-    },
-    children: [
-      {
-        key: "dashboard-analytics",
-        label: "Analytics",
-        url: "/analytics",
-        parentKey: "dashboard",
-      },
-      {
-        key: "dashboard-ecommerce",
-        label: "Ecommerce",
-        url: "/ecommerce",
-        parentKey: "dashboard",
-      },
-    ],
+    icon: "ri-dashboard-line",
+    url: "/apps/dashboard",
   },
+  // {
+  //   key: "dashboard",
+  //   label: "Dashboards",
+  //   isTitle: false,
+  //   icon: "ri-home-4-line",
+  //   badge: {
+  //     variant: "bg-success rounded-full",
+  //     text: "2",
+  //   },
+  //   children: [
+  //     {
+  //       key: "dashboard-analytics",
+  //       label: "Analytics",
+  //       url: "/analytics",
+  //       parentKey: "dashboard",
+  //     },
+  //     // {
+  //     //   key: "dashboard-ecommerce",
+  //     //   label: "Ecommerce",
+  //     //   url: "/ecommerce",
+  //     //   parentKey: "dashboard",
+  //     // },
+  //   ],
+  // },
   {
     key: "apps",
     label: "Apps",
     isTitle: true,
   },
   {
-    key: "apps-owner",
-    label: "Owner Management",
-    isTitle: false,
-    icon: "ri-admin-line",
-    url: "/apps/owner",
-  },
-  {
-    key: "apps-restaurant",
-    label: "Resturent Management",
+    key: "Restaurant",
+    label: "Restaurant",
     isTitle: false,
     icon: "ri-hotel-line",
-    url: "/apps/restaurant",
+    badge: {
+      variant: "bg-success rounded-full",
+      text: "2",
+    },
+    children: [
+      {
+        key: "apps-owner",
+        label: "Owner Management",
+        isTitle: false,
+        icon: "ri-admin-line",
+        url: "/apps/owner",
+      },
+      {
+        key: "apps-restaurant",
+        label: "Resturent Management",
+        isTitle: false,
+        icon: "ri-hotel-line",
+        url: "/apps/restaurant",
+      },
+    ],
   },
+
   {
     key: "apps-restaurant",
     label: "User Management",
@@ -76,6 +96,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
     icon: "ri-search-line",
     url: "/apps/hotel-search",
   },
+
   // {
   // 	key: 'apps-chat',
   // 	label: 'Chat',

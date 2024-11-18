@@ -9,6 +9,7 @@ import Restaurant from "@/pages/apps/Restaurant/Restaurant";
 import Restaurants from "@/pages/apps/Owner/Restaurants/Restaurants";
 import Search from "@/pages/apps/RestaurantSearch/RestaurantSearch";
 import Users from "@/pages/apps/Users/Users";
+import DashBoard from "@/pages/apps/Dashboard/DashBoard";
 
 // lazy load all the views
 
@@ -217,6 +218,14 @@ const dashboardRoutes: RoutesProps = {
   ],
 };
 
+const dashBoardRoutes: RoutesProps = {
+  path: "/apps/dashboard",
+  name: "Dashboard",
+  icon: "home",
+  header: "Navigation",
+  element: <DashBoard />,
+};
+
 // Apps
 const ownerAppRoutes: RoutesProps = {
   path: "/apps/owner",
@@ -342,6 +351,7 @@ const fileAppRoutes: RoutesProps = {
 
 const appRoutes = [
   ownerAppRoutes,
+  dashBoardRoutes,
   restaurantAppRoutes,
   chatAppRoutes,
   emailAppRoutes,

@@ -7,6 +7,8 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
+  Grid,
+  Box,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { useDropzone } from "react-dropzone";
@@ -23,9 +25,9 @@ interface NewRestaurant {
   location: string;
   country: string;
   owner: string;
-  foodAndDining: object; // Separate section for food and dining checkboxes
-  family: object; // Separate section for family checkboxes
-  entertainment: object; // Separate section for entertainment checkboxes
+  foodAndDining: { [key: string]: boolean }; // Use boolean to store checkbox state
+  family: { [key: string]: boolean };
+  entertainment: { [key: string]: boolean };
   gallery: object;
   avg_budget: string;
   place_id: string;
@@ -127,383 +129,226 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
   ];
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
+      {" "}
+      {/* Increased width to 'lg' */}
       <DialogTitle>Add New Restaurant</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Existing fields for basic restaurant details */}
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Restaurant Name:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* About Field */}
-          <Controller
-            name="about"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>About:</label>
-                <textarea
-                  {...field}
-                  rows={3}
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Contact Number Field */}
-          <Controller
-            name="contact_number"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Contact Number:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Contact Person Name Field */}
-          <Controller
-            name="contact_person_name"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Contact Person Name:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Contact Person Position Field */}
-          <Controller
-            name="contact_person_position"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Contact Person Position:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Restaurant Category Field */}
-          <Controller
-            name="restaurant_category"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Restaurant Category:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Location Field */}
-          <Controller
-            name="location"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Location:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Country Field */}
-          <Controller
-            name="country"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Country:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Avg Budget Field */}
-          <Controller
-            name="avg_budget"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Average Budget:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Place ID Field */}
-          <Controller
-            name="place_id"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Place ID:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Subscription Field */}
-          <Controller
-            name="subscription"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Subscription Type:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Avg Rating Field */}
-          <Controller
-            name="avg_rating"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Average Rating:</label>
-                <input
-                  {...field}
-                  type="number"
-                  step="0.1"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Icon Field */}
-          <Controller
-            name="icon"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Icon:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Website Field */}
-          <Controller
-            name="website"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Website:</label>
-                <input
-                  {...field}
-                  type="text"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Like Field */}
-          <Controller
-            name="like"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <label>Likes:</label>
-                <input
-                  {...field}
-                  type="number"
-                  required
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
-                />
-              </div>
-            )}
-          />
-
-          {/* Food and Dining Section */}
-          <div>
-            <h3>Food and Dining</h3>
-            {foodAndDiningOptions.map((option) => (
+          {/* Restaurant Name */}
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
               <Controller
-                key={option}
-                name={`foodAndDining.${option}`}
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <Box>
+                    <label>Restaurant Name:</label>
+                    <input
+                      {...field}
+                      type="text"
+                      required
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        marginTop: "4px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                  </Box>
+                )}
+              />
+            </Grid>
+
+            {/* About */}
+            <Grid item xs={12}>
+              <Controller
+                name="about"
+                control={control}
+                render={({ field }) => (
+                  <Box>
+                    <label>About:</label>
+                    <textarea
+                      {...field}
+                      rows={3}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        marginTop: "4px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                  </Box>
+                )}
+              />
+            </Grid>
+
+            {/* Other Fields */}
+            <Grid item xs={12} md={6}>
+              <Controller
+                name="contact_number"
+                control={control}
+                render={({ field }) => (
+                  <Box>
+                    <label>Contact Number:</label>
+                    <input
+                      {...field}
+                      type="text"
+                      required
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        marginTop: "4px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                  </Box>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Controller
+                name="contact_person_name"
+                control={control}
+                render={({ field }) => (
+                  <Box>
+                    <label>Contact Person Name:</label>
+                    <input
+                      {...field}
+                      type="text"
+                      required
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        marginTop: "4px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                  </Box>
+                )}
+              />
+            </Grid>
+
+            {/* Checkbox Sections */}
+            {/* Food and Dining Section */}
+            <Grid item xs={12}>
+              <h3>Food and Dining</h3>
+              {foodAndDiningOptions.map((option) => (
+                <Controller
+                  key={option}
+                  name={`foodAndDining.${option}`}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          {...field}
+                          checked={Boolean(field.value) || false}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      }
+                      label={option}
+                    />
+                  )}
+                />
+              ))}
+            </Grid>
+
+            {/* Family Section */}
+            <Grid item xs={12}>
+              <h3>Family</h3>
+              {familyOptions.map((option) => (
+                <Controller
+                  key={option}
+                  name={`family.${option}`}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          {...field}
+                          checked={field.value || false}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      }
+                      label={option}
+                    />
+                  )}
+                />
+              ))}
+            </Grid>
+
+            {/* Entertainment Section */}
+            <Grid item xs={12}>
+              <h3>Entertainment</h3>
+              {entertainmentOptions.map((option) => (
+                <Controller
+                  key={option}
+                  name={`entertainment.${option}`}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          {...field}
+                          checked={field.value || false}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      }
+                      label={option}
+                    />
+                  )}
+                />
+              ))}
+            </Grid>
+
+            {/* Image Dropzone */}
+            <Grid item xs={12}>
+              <div
+                {...getRootProps()}
+                style={{
+                  border: "2px dashed #ddd",
+                  borderRadius: "4px",
+                  padding: "16px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  marginTop: "8px",
+                }}
+              >
+                <input {...getInputProps()} />
+                {isDragActive ? (
+                  <p>Drop the image here...</p>
+                ) : uploadedImage ? (
+                  <p>{uploadedImage.name}</p>
+                ) : (
+                  <p>Drag and drop an image here, or click to select one</p>
+                )}
+              </div>
+            </Grid>
+
+            {/* Active Status */}
+            <Grid item xs={12}>
+              <Controller
+                name="isActive"
                 control={control}
                 render={({ field }) => (
                   <FormControlLabel
-                    control={
-                      <Checkbox
-                        {...field}
-                        checked={field.value || false}
-                        onChange={
-                          (e) => field.onChange(e.target.checked) // directly update field value
-                        }
-                      />
-                    }
-                    label={option}
+                    control={<Checkbox {...field} checked={field.value} />}
+                    label="Active"
                   />
                 )}
               />
-            ))}
-          </div>
-
-          {/* Family Section */}
-          <div>
-            <h3>Family</h3>
-            {familyOptions.map((option) => (
-              <Controller
-                key={option}
-                name={`family.${option}`}
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        {...field}
-                        checked={field.value || false}
-                        onChange={
-                          (e) => field.onChange(e.target.checked) // directly update field value
-                        }
-                      />
-                    }
-                    label={option}
-                  />
-                )}
-              />
-            ))}
-          </div>
-
-          {/* Entertainment Section */}
-          <div>
-            <h3>Entertainment</h3>
-            {entertainmentOptions.map((option) => (
-              <Controller
-                key={option}
-                name={`entertainment.${option}`}
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        {...field}
-                        checked={field.value || false}
-                        onChange={
-                          (e) => field.onChange(e.target.checked) // directly update field value
-                        }
-                      />
-                    }
-                    label={option}
-                  />
-                )}
-              />
-            ))}
-          </div>
-
-          {/* Image Dropzone */}
-          <div
-            {...getRootProps()}
-            style={{
-              border: "2px dashed #ddd",
-              borderRadius: "4px",
-              padding: "16px",
-              textAlign: "center",
-              cursor: "pointer",
-              marginTop: "8px",
-            }}
-          >
-            <input {...getInputProps()} />
-            {isDragActive ? (
-              <p>Drop the image here...</p>
-            ) : uploadedImage ? (
-              <p>{uploadedImage.name}</p>
-            ) : (
-              <p>Drag and drop an image here, or click to select one</p>
-            )}
-          </div>
-
-          {/* Active Status Checkbox */}
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <FormControlLabel
-                control={<Checkbox {...field} checked={field.value} />}
-                label="Active"
-              />
-            )}
-          />
+            </Grid>
+          </Grid>
         </form>
       </DialogContent>
-
       <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Cancel
-        </Button>
+        <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleSubmit(onSubmit)} color="primary">
           Save
         </Button>

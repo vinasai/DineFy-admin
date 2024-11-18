@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,16 +8,19 @@ import {
   Grid,
   IconButton,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditRestaurantModal from "./_components/EditRestaurantModal";
-import AddRestaurant from "./_components/AddRestaurant";
+
 import { supabase } from "@/api/client";
 import RestaurantDetails from "./_components/RestaurantDetails";
 import DeleteConfirmationModal from "./_components/DeleteConfirmationModal"; // Import the modal
+import { useGetRestaurantApiQuery } from "@/redux/api/restaurant/restaurantApiSlice";
+import AddRestaurant from "./_components/AddRestaurant";
+import EditRestaurantModal from "./_components/EditRestaurantModal";
 
 interface Restaurant {
   id: string;
@@ -37,7 +40,6 @@ interface Restaurant {
 }
 
 const Restaurant = () => {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [open, setOpen] = useState(false);
   const [newRestaurantOpen, setNewRestaurantOpen] = useState(false);
   const [currentRestaurant, setCurrentRestaurant] = useState<any>(null);
@@ -47,21 +49,11 @@ const Restaurant = () => {
     null
   ); // Selected restaurant ID for deletion
 
-  // Fetch data from Supabase
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      const { data: restaurant, error } = await supabase
-        .from("restaurant")
-        .select("*");
-
-      if (error) {
-        console.error("Failed to fetch restaurants:", error.message);
-      } else if (restaurant) {
-        setRestaurants(restaurant);
-      }
-    };
-    fetchRestaurants();
-  }, []);
+  const {
+    data: restaurants,
+    isLoading,
+    isError,
+  } = useGetRestaurantApiQuery("");
 
   const handleEditClick = (restaurant: Restaurant) => {
     setCurrentRestaurant(restaurant);
@@ -97,15 +89,37 @@ const Restaurant = () => {
         console.error("Failed to delete restaurant:", error.message);
       } else {
         // Remove the deleted restaurant from state to update the UI
-        setRestaurants((prevRestaurants) =>
-          prevRestaurants.filter((r) => r.id !== restaurantToDelete)
-        );
+        // Assuming the data comes from the API, you can handle the state update by refetching.
       }
       // Close the delete modal and reset the restaurantToDelete state
       setDeleteModalOpen(false);
       setRestaurantToDelete(null);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center mt-4">
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center mt-4">
+        <Typography color="error">Failed to load data.</Typography>
+      </div>
+    );
+  }
+
+  if (!restaurants || restaurants.length === 0) {
+    return (
+      <div className="flex justify-center items-center mt-4">
+        <Typography>No data available</Typography>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center">
@@ -125,22 +139,22 @@ const Restaurant = () => {
             </Button>
           </div>
           <Grid container spacing={4}>
-            {restaurants?.map((restaurant) => (
+            {restaurants.map((restaurant) => (
               <Grid item xs={12} sm={6} md={4} key={restaurant.id}>
                 <Card className="shadow-md hover:shadow-xl transition-shadow duration-200">
                   <CardMedia
                     component="img"
                     className="w-64 h-64"
                     image={
-                      restaurant?.thumbnail_photo ||
+                      restaurant.thumbnail_photo ||
                       "https://t4.ftcdn.net/jpg/05/65/22/41/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS.jpg"
                     }
-                    alt={restaurant?.name}
+                    alt={restaurant.name}
                     style={{ objectFit: "cover" }}
                   />
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
-                      {restaurant?.name}
+                      {restaurant.name}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -148,20 +162,20 @@ const Restaurant = () => {
                       paragraph
                       style={{ height: "60px", overflow: "hidden" }}
                     >
-                      {restaurant?.about?.slice(0, 75) ||
-                        "no descriptions available"}
+                      {restaurant.about?.slice(0, 75) ||
+                        "No descriptions available"}
                       ..
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      <strong>Address:</strong> {restaurant?.location}
+                      <strong>Address:</strong> {restaurant.location}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      <strong>Country:</strong> {restaurant?.country}
+                      <strong>Country:</strong> {restaurant.country}
                     </Typography>
                     <div className="flex items-center justify-between mt-4">
                       <Chip
-                        label={restaurant?.isActive ? "Active" : "Inactive"}
-                        color={restaurant?.isActive ? "success" : "error"}
+                        label={restaurant.isActive ? "Active" : "Inactive"}
+                        color={restaurant.isActive ? "success" : "error"}
                         variant="outlined"
                       />
                       <div>
@@ -182,7 +196,7 @@ const Restaurant = () => {
                         <IconButton
                           color="secondary"
                           size="small"
-                          onClick={() => handleDeleteClick(restaurant?.id)}
+                          onClick={() => handleDeleteClick(restaurant.id)}
                         >
                           <DeleteIcon />
                         </IconButton>

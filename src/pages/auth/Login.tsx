@@ -83,7 +83,7 @@ const Login = () => {
   const location = useLocation();
 
   // redirection back to where user got redirected from
-  const redirectUrl = location?.search?.slice(6) || "/";
+  const redirectUrl = location?.search?.slice(6) || "/apps/dashboard";
 
   return (
     <>
