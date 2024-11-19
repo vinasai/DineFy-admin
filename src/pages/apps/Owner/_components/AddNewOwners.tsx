@@ -5,19 +5,12 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  IconButton,
-  Box,
-  Typography,
-  Autocomplete,
-  TextField,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  useCreateOwnerApiMutation,
-  useGetOwnerApiQuery,
-} from "@/redux/api/owner/ownerApi";
-import { useGetRestaurantApiQuery } from "@/redux/api/restaurant/restaurantApiSlice";
+import Step1OwnerInfo from "../steps/Step1OwnerInfo";
+import Step2RestaurantInfo from "../steps/Step2RestaurantInfo";
+import Step4ReviewSubmit from "../steps/Step4ReviewSubmit";
+import Step3GenerateCredentials from "../steps/Step3GenerateCredentials";
 
 interface AddNewOwnersProps {
   onClose: () => void;
@@ -31,8 +24,6 @@ interface FormData {
   restaurant: {
     name: string;
     location: string;
-    email: string;
-    contact: string;
   }[];
 }
 
@@ -47,76 +38,29 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
   } = useForm<FormData>();
 
   const [step, setStep] = useState(1);
-  const [restaurants, setRestaurants] = useState([
-    { name: "", location: "", email: "", contact: "" },
-  ]);
-
-  const { refetch } = useGetOwnerApiQuery("");
-  const [createOwner] = useCreateOwnerApiMutation();
-  const { data: restaurantsDetails = [] } = useGetRestaurantApiQuery("");
-
-  // Function to handle autocomplete selection
-  const handleRestaurantSelection = (
-    index: number,
-    selectedRestaurant: any
-  ) => {
-    if (selectedRestaurant) {
-      handleRestaurantChange(index, "name", selectedRestaurant.name);
-      handleRestaurantChange(index, "location", selectedRestaurant.location);
-      handleRestaurantChange(index, "email", selectedRestaurant.email);
-      handleRestaurantChange(index, "contact", selectedRestaurant.contact);
-    }
-  };
-
-  const onSubmit = async (data: FormData) => {
-    try {
-      const response = await createOwner(data);
-      refetch();
-      if ("data" in response) {
-        console.log("Owner created successfully:", response.data);
-        onClose();
-      } else if ("error" in response) {
-        console.error("Failed to create owner:", response.error);
-      }
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
-  };
-
-  const addRestaurantField = () => {
-    setRestaurants((prev) => [
-      ...prev,
-      { name: "", location: "", email: "", contact: "" },
-    ]);
-  };
-
-  const removeRestaurantField = (index: number) => {
-    setRestaurants((prev) => {
-      const updatedRestaurants = prev.filter((_, i) => i !== index);
-      setValue("restaurant", updatedRestaurants); // Update the form value
-      return updatedRestaurants;
-    });
-  };
-
-  const handleRestaurantChange = (
-    index: number,
-    field: keyof FormData["restaurant"][0],
-    value: string
-  ) => {
-    const newRestaurants = [...restaurants];
-    newRestaurants[index][field] = value;
-    setRestaurants(newRestaurants);
-    setValue("restaurant", newRestaurants); // Ensure form data is updated
-  };
+  const [restaurants, setRestaurants] = useState([{ name: "", location: "" }]);
 
   const ownerData = watch(["name", "email", "country", "location"]);
   const restaurantData = watch("restaurant");
 
   const handleNextStep = async () => {
     const isValid = await trigger(
-      step === 1 ? ["name", "email", "country", "location"] : "restaurant"
+      step === 1
+        ? ["name", "email", "country", "location"]
+        : step === 2
+        ? "restaurant"
+        : []
     );
     if (isValid) setStep((prev) => prev + 1);
+  };
+
+  const handlePreviousStep = () => {
+    setStep((prev) => prev - 1);
+  };
+
+  const onSubmit = async (data: FormData) => {
+    console.log("Submitting data:", data);
+    onClose(); // Close dialog after submission
   };
 
   return (
@@ -126,179 +70,26 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
           ? "Add Owner Information"
           : step === 2
           ? "Add Restaurant Information"
+          : step === 3
+          ? "Generate Credentials"
           : "Review & Submit"}
       </DialogTitle>
 
       <DialogContent className="p-6 space-y-6 bg-gray-50">
-        {step === 1 && (
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Name
-              </label>
-              <input
-                {...register("name", { required: "Name is required" })}
-                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter owner's name"
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Email
-              </label>
-              <input
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Enter a valid email",
-                  },
-                })}
-                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter owner's email"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Country
-              </label>
-              <input
-                {...register("country", { required: "Country is required" })}
-                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter owner's country"
-              />
-              {errors.country && (
-                <p className="text-red-500 text-sm">{errors.country.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Address
-              </label>
-              <input
-                {...register("location", { required: "Address is required" })}
-                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter owner's address"
-              />
-              {errors.location && (
-                <p className="text-red-500 text-sm">
-                  {errors.location.message}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
+        {step === 1 && <Step1OwnerInfo register={register} errors={errors} />}
         {step === 2 && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Restaurants</h3>
-            {restaurants.map((restaurant, index) => (
-              <Box
-                key={index}
-                className="p-4 mb-4 border border-gray-200 rounded-md bg-white shadow-sm space-y-2"
-              >
-                <div>
-                  <label className="block mb-1 font-semibold text-gray-700">
-                    Restaurant Name
-                  </label>
-                  <Autocomplete
-                    options={restaurantsDetails} // Data from API
-                    getOptionLabel={(option: any) => option.name} // Display name in dropdown
-                    onChange={(_, value) =>
-                      handleRestaurantSelection(index, value)
-                    } // Handle selection
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Search restaurant name"
-                        variant="outlined"
-                        fullWidth
-                      />
-                    )}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold text-gray-700">
-                    Restaurant Address
-                  </label>
-                  <input
-                    value={restaurant.location}
-                    onChange={(e) =>
-                      handleRestaurantChange(index, "location", e.target.value)
-                    }
-                    className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter restaurant address"
-                  />
-                </div>
-
-                <IconButton
-                  color="error"
-                  onClick={() => removeRestaurantField(index)}
-                  className="self-end"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            ))}
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={addRestaurantField}
-              className="self-start"
-            >
-              Add Another Restaurant
-            </Button>
-          </div>
+          <Step2RestaurantInfo
+            restaurants={restaurants}
+            setRestaurants={setRestaurants}
+            setValue={setValue}
+          />
         )}
-
-        {step === 3 && (
-          <div className="space-y-4">
-            <Typography variant="h6" gutterBottom>
-              Review Owner Information
-            </Typography>
-            <p>
-              <strong>Name:</strong> {ownerData[0]}
-            </p>
-            <p>
-              <strong>Email:</strong> {ownerData[1]}
-            </p>
-            <p>
-              <strong>Country:</strong> {ownerData[2]}
-            </p>
-            <p>
-              <strong>Address:</strong> {ownerData[3]}
-            </p>
-
-            <Typography variant="h6" gutterBottom style={{ marginTop: "1rem" }}>
-              Review Restaurants Information
-            </Typography>
-            {restaurantData &&
-              restaurantData.map((restaurant, index) => (
-                <Box
-                  key={index}
-                  className="p-4 mb-2 border border-gray-200 rounded-md bg-gray-100"
-                >
-                  <p>
-                    <strong>Restaurant {index + 1}:</strong>
-                  </p>
-                  <p>
-                    <strong>Name:</strong> {restaurant.name}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {restaurant.location}
-                  </p>
-                </Box>
-              ))}
-          </div>
+        {step === 3 && <Step3GenerateCredentials name={ownerData[0] || ""} />}
+        {step === 4 && (
+          <Step4ReviewSubmit
+            ownerData={ownerData}
+            restaurantData={restaurantData}
+          />
         )}
       </DialogContent>
 
@@ -308,22 +99,22 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
         </Button>
         {step > 1 && (
           <Button
-            onClick={() => setStep((prev) => prev - 1)}
+            onClick={handlePreviousStep}
             variant="outlined"
             color="primary"
           >
             Back
           </Button>
         )}
-        {step < 3 ? (
+        {step < 4 ? (
           <Button onClick={handleNextStep} variant="contained" color="primary">
             Next
           </Button>
         ) : (
           <Button
+            onClick={handleSubmit(onSubmit)}
             variant="contained"
             color="primary"
-            onClick={handleSubmit(onSubmit)}
           >
             Submit
           </Button>
