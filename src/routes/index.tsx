@@ -171,13 +171,13 @@ export interface RoutesProps {
 
 // dashboards
 const dashboardRoutes: RoutesProps = {
-  path: "/dashboard",
+  path: "/",
   name: "Dashboards",
   icon: "home",
   header: "Navigation",
   children: [
     {
-      path: "/apps/",
+      path: "/apps",
       name: "Root",
       element: <Navigate to="/dashboard" />,
       route: PrivateRoute,

@@ -201,9 +201,7 @@ const Topbar = () => {
 					</span>
 				</button>
 
-				<div className="relative hidden lg:block">
-					<TopBarSearch />
-				</div>
+				
 
 				{/*
 				<div className="relative ms-auto">

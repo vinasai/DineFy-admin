@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { AppDispatch, RootState } from "../../redux/store";
 import { loginUser, resetAuth } from "../../redux/actions";
 import { useDispatch, useSelector } from "react-redux";
+import { createSelector } from '@reduxjs/toolkit';
 
 // form validation
 import * as yup from "yup";
@@ -53,7 +54,18 @@ const PasswordInputChild = () => {
 };
 
 const Login = () => {
+
   const dispatch = useDispatch<AppDispatch>();
+
+  const selectAuthState = createSelector(
+    (state: RootState) => state.auth,
+    (auth) => ({
+      isAuthenticated: auth.isAuthenticated,
+      loading: auth.loading,
+      user: auth.user
+    })
+  );
+  
 
   const { user, userLoggedIn, loading, error } = useSelector((state: RootState) => ({
     user: state.Auth.user,
@@ -64,7 +76,7 @@ const Login = () => {
 
   useEffect(() => {
     dispatch(resetAuth());
-  }, [dispatch]);
+  }, []);
 
   /*
   form validation schema
@@ -86,11 +98,11 @@ const Login = () => {
   const location = useLocation();
 
   // redirection back to where user got redirected from
-  const redirectUrl = location?.search?.slice(6) || "/apps/dashboard";
+  const redirectUrl = "/apps/dashboard";
 
   return (
     <>
-      {(userLoggedIn || user) && <Navigate to={redirectUrl} />}
+    {(userLoggedIn || user) && <Navigate to={redirectUrl} />}
       
 
       <AuthContainer
@@ -123,8 +135,8 @@ const Login = () => {
             onSubmit={onSubmit}
             resolver={schemaResolver}
             defaultValues={{
-              username: "attex@coderthemes.com",
-              password: "attex",
+              username: "",
+              password: "",
             }}
           >
 

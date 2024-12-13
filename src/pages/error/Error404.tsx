@@ -40,7 +40,7 @@ const Error404 = () => {
 										</h1>
 										<h4 className="text-danger text-lg uppercase my-7">Page Not Found</h4>
 										<p>It's looking like you may have taken a wrong turn. Don't worry... it happens to the best of us. Here's a little tip that might help you get back on track.</p>
-										<Link type="button" className="btn bg-info text-white mt-10" to="/">
+										<Link type="button" className="btn bg-info text-white mt-10" to="/apps/dashboard">
 											<i className="ri-home-4-line me-2"></i> Back to Home
 										</Link>
 									</div>
@@ -51,7 +51,7 @@ const Error404 = () => {
 				</div>
 
 				<footer className="absolute bottom-0 inset-x-0">
-					<p className="font-medium text-center p-6">{new Date().getFullYear()} © Attex - Coderthemes.com</p>
+					<p className="font-medium text-center p-6">{new Date().getFullYear()} © DineFy - Vinasai Inc</p>
 				</footer>
 			</AuthContainer>
 		</>
