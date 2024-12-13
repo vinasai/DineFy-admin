@@ -62,7 +62,7 @@ interface TransformedUser {
 
 const transformUser = (response: OriginalResponse): TransformedUser => {
     const { user, session } = response.data;
-	console.log("access toke", session.access_token);
+
 
     return {
 		id: 1, // Assuming a static ID for the example
@@ -85,7 +85,7 @@ const api = new APICore()
 function* login({ payload: { username, password } }: UserData): SagaIterator {
 	try {
 		
-		//console.log("userererer",response.user)
+
 
 		async function signInWithEmail({username, password}: {username: string, password: string}) {
 			const { data, error } = await supabase.auth.signInWithPassword({
@@ -96,7 +96,6 @@ function* login({ payload: { username, password } }: UserData): SagaIterator {
 			}
 
 		const response  = yield call(signInWithEmail, {username, password})
-		console.log("test",response )
 		if (response?.error) {
 			const errorMessage = response.error.code === 'invalid_credentials' 
 			  ? 'Invalid email or password'

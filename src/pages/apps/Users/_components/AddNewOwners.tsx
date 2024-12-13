@@ -56,10 +56,10 @@ const AddNewOwners: React.FC<AddNewOwnersProps> = ({ onClose }) => {
       const response = await createOwner(data);
       refetch();
       if ("data" in response) {
-        console.log("Owner created successfully:", response.data);
+
         onClose();
       } else if ("error" in response) {
-        console.error("Failed to create owner:", response.error);
+
       }
     } catch (error) {
       console.error("An error occurred:", error);

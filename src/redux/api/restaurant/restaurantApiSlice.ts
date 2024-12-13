@@ -139,9 +139,10 @@ const generateQrCode = async (restaurantId: string, restaurantName: string) => {
     if (error) {
       console.error("Error uploading file:", error);
     } else {
-      console.log("File uploaded successfully:", data);
+
       
-      return qrCodeUrlSupabase;
+     
+      return qrCodeUrlSupabase.publicUrl;
 
     }
   } catch (error) {
@@ -318,8 +319,13 @@ const RestaurantApi = apiSlice.injectEndpoints({
           // 1. Fetch place details if place_id exists
           let placeDetails = null;
           if (newRestaurant.place_id) {
-            const response = await fetch(`https://cors-anywhere.herokuapp.com/https://gutghjvgdvzmklwubsuj.supabase.co/functions/v1/get-place-details?place_id=${newRestaurant.place_id}`);
+
+            
+
+            
+            const response = await  fetch(`https://gutghjvgdvzmklwubsuj.supabase.co/functions/v1/get-place-details?place_id=${newRestaurant.place_id}`);
             const data = await response.json();
+
             
 
             interface GooglePlaceResult {
@@ -347,15 +353,13 @@ const RestaurantApi = apiSlice.injectEndpoints({
             } as PlaceDetails;
           
 
-            
-            console.log("Place Details:", placeDetails);
+          
             //placeDetails = await fetchPlaceDetails(newRestaurant.place_id);
           }
 
           // 2. Map restaurant data
           const mappedData = mapRestaurantDataToTable(newRestaurant, placeDetails);
 
-          console.log("Mapped Restaurant Data:", mappedData);
 
           // 3. Handle thumbnail upload
           if (newRestaurant.thumbnail_photo instanceof File) {
@@ -381,7 +385,6 @@ const RestaurantApi = apiSlice.injectEndpoints({
                   mappedData.gallery = await Promise.all<string>(
                     newRestaurant.gallery.map((file: GalleryFile, index: number): Promise<string> => {
                     const filePath: string = `${folderName}/${index}_${Date.now()}.${file.name.split('.').pop()}`;
-                    console.log("Uploading gallery image:", file, filePath);
                     return uploadImage(file, 'restaurants_gallery', filePath);
                     })
                   );
@@ -407,10 +410,10 @@ const RestaurantApi = apiSlice.injectEndpoints({
               .single();
 
             if (updateError) throw updateError;
-            console.log("Updated Data:", updatedData);
+
             return { data: updatedData };
           }
-          console.log("Inserted Data:", insertedData);
+
           return { data: insertedData };
 
         } catch (error: any) {
@@ -431,7 +434,7 @@ const RestaurantApi = apiSlice.injectEndpoints({
       // Update existing data in the "Restaurant" table
       async queryFn(updatedRestaurant, _api, _extraOptions, _baseQuery) {
 
-        console.log("Mapped Restaurant Data:", updatedRestaurant.id);
+
         interface RestaurantInput {
           name: string;
           about?: string;
@@ -497,7 +500,8 @@ const RestaurantApi = apiSlice.injectEndpoints({
     
         // If there's a new thumbnail photo, upload it
         if (updatedRestaurant.thumbnail_photo instanceof File) {
-          console.log("Updating thumbnail photo");
+
+          
           const file = updatedRestaurant.thumbnail_photo;
           const filePath = updatedRestaurant.name + Date.now() + "." + file.name.split('.').pop();
     
@@ -520,7 +524,8 @@ const RestaurantApi = apiSlice.injectEndpoints({
         }
 
         // In updateRestaurantApi mutation
-        console.log("Updating thumbnail photo", updatedRestaurant.gallery);
+
+        
         if (updatedRestaurant.gallery?.length > 0) {
           const newGalleryUrls: string[] = [];
           const existingUrls: string[] = [];

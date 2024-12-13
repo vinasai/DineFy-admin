@@ -214,6 +214,7 @@ const RestaurantSearch: React.FC<{
     setShowDropdown(false);
     setRestaurants([]);
     setHasSearched(false);
+    onSelectRestaurant(null);
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -396,7 +397,7 @@ const RestaurantSearch: React.FC<{
         onClick={handleCloseSearch}
         className="text-red-500 hover:text-red-700 font-semibold"
       >
-        Close Search
+        Reset Search
       </button>
     </div>
 
@@ -452,7 +453,7 @@ const Search: React.FC = () => {
       setIsRestaurantOnCreating(true);
       // Fetch detailed data
       //const details = await fetchPlaceDetails(selectedRestaurant.place_id);
-      //console.log("Details:", details);
+
       
       // Combine with existing data
       const restaurantData = {

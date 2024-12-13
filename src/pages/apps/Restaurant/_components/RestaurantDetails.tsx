@@ -10,6 +10,7 @@ import {
   Chip,
 } from "@mui/material";
 import {useFetchOwnerDataByIdMutation} from "@/redux/api/owner/ownerApi";
+import { Twitter } from "@mui/icons-material";
 
 
 interface Restaurant {
@@ -44,6 +45,7 @@ interface Restaurant {
   thumbnail_photo: string;
   owner: string;
   qr_code: string;
+  gallery: string[];
 }
 
 interface RestaurantDetailsModalProps {
@@ -59,7 +61,6 @@ const RestaurantDetailsModal: React.FC<RestaurantDetailsModalProps> = ({
 }) => {
   
   const [fetchOwnerDataById, { data: ownerData, error, isLoading  }] = useFetchOwnerDataByIdMutation();
-
   useEffect(() => {
     if (open && restaurant?.owner) {
       fetchOwnerDataById({ id: restaurant.owner });
@@ -67,6 +68,23 @@ const RestaurantDetailsModal: React.FC<RestaurantDetailsModalProps> = ({
   }, [open, restaurant?.owner, fetchOwnerDataById]);
   const daysOrder: (keyof Restaurant["opening_hours"])[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   if (!restaurant) return null;
+
+  const handleDownload = async (qrCodeUrl: string) => {
+    try {
+      const response = await fetch(qrCodeUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${restaurant.name} - QR Code.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download QR code:", error);
+    }
+  };
 
   return (
     <Dialog
@@ -134,6 +152,7 @@ const RestaurantDetailsModal: React.FC<RestaurantDetailsModalProps> = ({
                         variant="contained"
                         color="primary"
                       sx={{ ml: 2, mt: 2 , height: 40}}
+                      onClick={() => handleDownload(restaurant.qr_code)}
                       >
                         Download QR Code
               </Button>
@@ -212,36 +231,52 @@ const RestaurantDetailsModal: React.FC<RestaurantDetailsModalProps> = ({
                   <Typography variant="body2" className="text-gray-700">
                     <strong>Website:</strong> {restaurant.website || "N/A"}
                   </Typography>
-                  {/*
+                  
                   <div className="flex space-x-2 mt-2">
                     {restaurant.social_media?.twitter && (
-                      <a
-                        href={restaurant.social_media.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <DeleteOutline />
-                      </a>
+                      <><Typography variant="body2" className="text-gray-700">
+                      <strong>Twitter:</strong> {restaurant.website || "N/A"}
+                    </Typography>
+                        <a
+                          href={restaurant.social_media.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          
+                          {restaurant.social_media.twitter}
+                        </a>
+                      </>
                     )}
                     {restaurant.social_media.instagram && (
-                      <a
+                      <>       
+                       <Typography variant="body2" className="text-gray-700">
+                      <strong>Instagram:</strong> {restaurant.website || "N/A"}
+                    </Typography>               <a
                         href={restaurant.social_media?.instagram}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <DeleteOutline />
+                       
                       </a>
+                      </>
+
                     )}
                     {restaurant.social_media.facebook && (
+                      <>
+                       <Typography variant="body2" className="text-gray-700">
+                      <strong>Facebook:</strong> {restaurant.website || "N/A"}
+                    </Typography>
+                      
                       <a
                         href={restaurant.social_media?.facebook}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <DeleteOutline />
+                       
                       </a>
+                      </>
                     )}
-                  </div>*/}
+                  </div>
                 </div>
               </div>
             </Grid>
@@ -326,6 +361,33 @@ const RestaurantDetailsModal: React.FC<RestaurantDetailsModalProps> = ({
   })}
 </tbody>
                 </table>
+              </div>
+            </Grid>
+
+            <Grid item xs={12}>
+              <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 mb-2"
+                >
+                  Gallery
+                </Typography>
+
+                  {restaurant.gallery.length === 0 && (
+                    <Typography variant="body2" className="text-gray-500">
+                      No gallery images available.
+                    </Typography>
+                  )}
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                {restaurant.gallery.map((image: string, index: number) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Gallery Image ${index}`}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
               </div>
             </Grid>
           </Grid>

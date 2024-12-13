@@ -175,6 +175,7 @@ const dashboardRoutes: RoutesProps = {
   name: "Dashboards",
   icon: "home",
   header: "Navigation",
+  element: <Navigate to="/apps/dashboard" />,
   children: [
     {
       path: "/apps",

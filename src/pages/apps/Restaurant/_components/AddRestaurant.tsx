@@ -262,7 +262,7 @@ const AddRestaurant: React.FC<AddRestaurantProps> = ({
       setRestaurantOnCreating(true);
       const response = await createRestaurant(restaurantToSave);
       if ('data' in response) {
-        console.log(response.data[0]);
+
 
         if (response.data[0]) {
           setSubmittedRestaurant({ ...restaurantToSave, qr_code_url: response.data[0].qr_code });

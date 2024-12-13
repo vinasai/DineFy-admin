@@ -47,7 +47,6 @@ const ownerApi = apiSlice.injectEndpoints({
     updateOwnerApi: builder.mutation({
       // Insert new data into the "owner" table
       async queryFn(arg, _api, _extraOptions, _baseQuery) {
-        console.log("Owner Data:", arg.contact_no);
         try {
           const { data, error } = await supabase
           .from("owner")

@@ -91,11 +91,10 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
       if (restaurant?.id) {
         // Update existing restaurant
         result = await updateRestaurantApi(newRestaurant).unwrap();
-        console.log("Update API Response:", result);
       } else {
         // Create new restaurant
         result = await createRestaurantApi(newRestaurant).unwrap();
-        console.log("Create API Response:", result);
+
         
       }
       onSave(result); // Send data back to parent component

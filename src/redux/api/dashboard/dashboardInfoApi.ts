@@ -62,7 +62,6 @@ const dashboardInfoApi = apiSlice.injectEndpoints({
                 await supabase.from("notification").select('*', { count: "exact" }),
               ]);
 
-              console.log(restaurantCount, ownerCount, profileCount, offerCount, notificationCount);
          
           if (restaurantCount.error || ownerCount.error || profileCount.error || offerCount.error || notificationCount.error) {
             return {
