@@ -12,6 +12,7 @@ import { authApiResponseSuccess, authApiResponseError } from './actions'
 
 // constants
 import { AuthActionTypes } from './constants'
+import { supabase } from "@/api/client";
 
 interface UserData {
 	payload: {
@@ -23,6 +24,57 @@ interface UserData {
 	type: string
 }
 
+interface OriginalUser {
+    id: string;
+    email: string;
+    role: string;
+    app_metadata: {
+        provider: string;
+        providers: string[];
+    };
+    user_metadata: Record<string, any>;
+}
+
+interface OriginalSession {
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    user: OriginalUser;
+}
+
+interface OriginalResponse {
+    data: {
+        user: OriginalUser;
+        session: OriginalSession;
+    };
+    error: any;
+}
+
+interface TransformedUser {
+    id: number;
+    username: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    token: string;
+}
+
+
+const transformUser = (response: OriginalResponse): TransformedUser => {
+    const { user, session } = response.data;
+	console.log("access toke", session.access_token);
+
+    return {
+		id: 1, // Assuming a static ID for the example
+        username: user.email, 
+        firstName: 'Nipun', // Assuming a static first name for the example
+        lastName: 'Perera', // Assuming a static last name for the example
+        role: 'admin',
+		token: session.access_token,
+    };
+};
+
+
 const api = new APICore()
 
 /**
@@ -32,8 +84,36 @@ const api = new APICore()
 
 function* login({ payload: { username, password } }: UserData): SagaIterator {
 	try {
-		const response = yield call(loginApi, { username, password })
-		const user = response.data
+		
+		//console.log("userererer",response.user)
+
+		async function signInWithEmail({username, password}: {username: string, password: string}) {
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email: username,
+				password: password,
+			  })
+			  return { data, error }
+			}
+
+		const response  = yield call(signInWithEmail, {username, password})
+		console.log("test",response )
+		if (response?.error) {
+			const errorMessage = response.error.code === 'invalid_credentials' 
+			  ? 'Invalid email or password'
+			  : 'Authentication failed'
+			  
+			yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, errorMessage
+			))
+			api.setLoggedInUser(null)
+			setAuthorization(null)
+			return
+		  }
+		const transformedUser = transformUser(response );
+		const user = transformedUser
+
+		
+			
+		
 		// NOTE - You can change this according to response format from your api
 		api.setLoggedInUser(user)
 		setAuthorization(user['token'])

@@ -21,12 +21,12 @@ type ChildrenProps = {
 	classname?: string
 }
 
-const FileUploader = ({ showPreview = true, onFileUpload, icon, text }: FileUploaderProps) => {
+const FileUploader = ({ showPreview = true }: FileUploaderProps) => {
 	const { selectedFiles, handleAcceptedFiles, removeFile } = useFileUploader(showPreview)
 
 	return (
 		<>
-			<Dropzone onDrop={(acceptedFiles) => handleAcceptedFiles(acceptedFiles, onFileUpload)}>
+			{/* <Dropzone onDrop={(acceptedFiles) => handleAcceptedFiles(acceptedFiles, onFileUpload)}>
 				{({ getRootProps, getInputProps }) => (
 					<div className="dropzone flex justify-center items-center">
 						<div className="fallback">
@@ -40,7 +40,7 @@ const FileUploader = ({ showPreview = true, onFileUpload, icon, text }: FileUplo
 						</div>
 					</div>
 				)}
-			</Dropzone>
+			</Dropzone> */}
 
 			{showPreview && selectedFiles.length > 0 && (
 				<div>

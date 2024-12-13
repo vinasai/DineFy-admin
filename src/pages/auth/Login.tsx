@@ -8,11 +8,14 @@ import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
+import { Alert, Collapse  } from "@mui/material";
+
 // components
 import AuthLayout from "../../components/AuthPageLayout/AuthLayout";
 import AuthContainer from "../../components/AuthPageLayout/AuthContainer";
 import VerticalForm from "../../components/VerticalForm";
 import FormInput from "../../components/FormInput";
+
 
 interface UserData {
   username: string;
@@ -52,7 +55,7 @@ const PasswordInputChild = () => {
 const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { user, userLoggedIn, loading } = useSelector((state: RootState) => ({
+  const { user, userLoggedIn, loading, error } = useSelector((state: RootState) => ({
     user: state.Auth.user,
     loading: state.Auth.loading,
     error: state.Auth.error,
@@ -88,12 +91,34 @@ const Login = () => {
   return (
     <>
       {(userLoggedIn || user) && <Navigate to={redirectUrl} />}
+      
 
-      <AuthContainer>
+      <AuthContainer
+>
+  
         <AuthLayout
           authTitle="Sign In"
-          helpText="Enter your email address and password to access admin panel."
+          //helpText="Enter your email address and password to access admin panel."
         >
+
+        {error && (
+
+              <Collapse in={error !== null} timeout={1000}>
+              <Alert 
+                variant="standard" 
+                color="error" 
+                severity="error" 
+                sx={{ 
+                  mb: 3,
+                  transition: 'opacity 0.3s ease-in-out'
+                }}
+              >
+                {error?.message || 'Invalid Credentials: Please try again'}
+              </Alert>
+              </Collapse>
+
+            )}
+          
           <VerticalForm<UserData>
             onSubmit={onSubmit}
             resolver={schemaResolver}
@@ -102,8 +127,11 @@ const Login = () => {
               password: "attex",
             }}
           >
+
+          
+            
             <FormInput
-              label="Email Address"
+              label="Email"
               type="email"
               name="username"
               className="form-input"
@@ -137,9 +165,9 @@ const Login = () => {
               defaultChecked
             />
 
-            <div className="text-center mb-6">
+            <div className="text-center mt-3">
               <button
-                className="btn bg-primary text-white"
+                className="btn bg-dark text-white"
                 type="submit"
                 disabled={loading}
               >

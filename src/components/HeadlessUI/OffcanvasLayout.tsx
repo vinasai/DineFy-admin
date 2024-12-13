@@ -9,7 +9,7 @@ interface OffcanvasLayoutProps {
 	sizeClassName?: string
 }
 
-const OffcanvasLayout = ({ open, toggleOffcanvas, children, placement, sizeClassName }: OffcanvasLayoutProps) => {
+const OffcanvasLayout = ({ placement }: OffcanvasLayoutProps) => {
 	let enterFrom = 'translate-x-full rtl:-translate-x-full'
 	let enterTo = 'translate-x-0'
 
@@ -26,7 +26,7 @@ const OffcanvasLayout = ({ open, toggleOffcanvas, children, placement, sizeClass
 
 	return (
 		<>
-			<Transition appear show={open} as={Fragment}>
+			{/* <Transition appear show={open} as={Fragment}>
 				<Dialog as="div" className="relative" onClose={toggleOffcanvas}>
 					<Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
 						<div className="fixed inset-0 bg-black bg-opacity-40 z-40" />
@@ -38,7 +38,7 @@ const OffcanvasLayout = ({ open, toggleOffcanvas, children, placement, sizeClass
 						</div>
 					</Transition.Child>
 				</Dialog>
-			</Transition>
+			</Transition> */}
 		</>
 	)
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import {
   Table,
   TableBody,
@@ -15,20 +15,30 @@ import {
   Chip,
   CircularProgress,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
-import {
-  useGetOwnerApiQuery,
-  useDeleteOwnerApiMutation,
-} from "@/redux/api/owner/ownerApi";
+import avatar from '@/assets/images/users/user.png'
 import {
   useDeleteUserApiMutation,
   useGetUserApiQuery,
 } from "@/redux/api/user/userApi";
+import EditUser from "./EditUser";
+
+
 
 // Define new type matching the database columns
 export interface User {
+  phone: string;
+  status: boolean;
+  created_at: string | number | Date;
   id: string;
   uuid: string;
   updated_at: string;
@@ -46,13 +56,19 @@ const UsersTableList: React.FC = () => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
   const { data: users, isLoading, error, refetch } = useGetUserApiQuery("");
   const [deleteUser] = useDeleteUserApiMutation();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
+
+
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -62,11 +78,28 @@ const UsersTableList: React.FC = () => {
   };
 
   const handleDeleteClick = async (id: string) => {
-    try {
-      await deleteUser(id);
+    setUserToDelete(id);
+    setDeleteConfirmationOpen(true);
+  };
+
+
+  const handleEditClick = (id: string) => {
+    setSelectedUserForEdit(users?.find((user) => user.id === id) || null);
+    setIsEditModalOpen(true);
+    
+  };
+
+  const handleSave = () => {
+    setIsEditModalOpen(false);
+    //refetch();
+  };
+
+  const handleConfirmDelete = (id: string | null) => async () => {
+    if (id) {
+      //await deleteUser(id).unwrap();
+      setDeleteConfirmationOpen(false);
+      setUserToDelete(null);
       refetch();
-    } catch (error) {
-      console.error("Failed to delete the user:", error);
     }
   };
 
@@ -100,11 +133,12 @@ const UsersTableList: React.FC = () => {
   }
 
   return (
+    <div>
     <Card className="shadow-lg p-4 mb-6">
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <Typography variant="h5" component="h1" className="font-bold">
-            Users Management
+            All Mobile Users
           </Typography>
         </div>
 
@@ -114,16 +148,15 @@ const UsersTableList: React.FC = () => {
               <TableRow>
                 {[
                   "ID",
-
-                  "Username",
-                  "Full Name",
-                  "Avatar",
+                  "Profile ",
+                  "Full Name", 
+                  "Email",
+                  "Phone",
                   "Gender",
                   "Date of Birth",
-                  "Last Accessed",
-                  "Email",
-                  "Updated At",
-                  "Action",
+                  "Created Date",
+                  "Status",
+                  "Actions",
                 ].map((header) => (
                   <TableCell
                     key={header}
@@ -150,30 +183,35 @@ const UsersTableList: React.FC = () => {
                       {page * rowsPerPage + index + 1}
                     </TableCell>
                     <TableCell sx={{ padding: "8px" }}>
-                      {user.username}
-                    </TableCell>
-                    <TableCell sx={{ padding: "8px" }}>
-                      {user.full_name}
-                    </TableCell>
-                    <TableCell sx={{ padding: "8px" }}>
                       <img
-                        src={user.avatar_url}
+                        src={user.avatar_url || avatar}
                         alt="avatar"
                         width={40}
                         height={40}
                         style={{ borderRadius: "50%" }}
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: "8px" }}>{user.gender}</TableCell>
-                    <TableCell sx={{ padding: "8px" }}>{user.dob}</TableCell>
+                    
                     <TableCell sx={{ padding: "8px" }}>
-                      {new Date(user.last_accessed).toLocaleString()}
+                      {user.full_name}
                     </TableCell>
                     <TableCell sx={{ padding: "8px" }}>{user.email}</TableCell>
+                    <TableCell sx={{ padding: "8px" }}>{user.phone || "-"}</TableCell>
+                    <TableCell sx={{ padding: "8px" }}>{user.gender || "-"}</TableCell>
+                    <TableCell sx={{ padding: "8px" }}>{user.dob || "-"}</TableCell>
                     <TableCell sx={{ padding: "8px" }}>
-                      {new Date(user.updated_at).toLocaleString()}
+                      {new Date(user.created_at).toLocaleString()}
                     </TableCell>
-                    <TableCell sx={{ padding: "8px", textAlign: "center" }}>
+                    <TableCell sx={{ padding: "8px" }}>
+                      <Chip
+                        label={user.status ? "Active" : "Inactive"}
+                        color={user.status ? "success" : "error"}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ padding: "8px", textAlign: "left" }}>
+                    <IconButton onClick={() => handleEditClick(user.id)}>
+                        <EditIcon className="text-primary" />
+                      </IconButton>
                       <IconButton onClick={() => handleDeleteClick(user.id)}>
                         <DeleteIcon className="text-red-500" />
                       </IconButton>
@@ -196,6 +234,40 @@ const UsersTableList: React.FC = () => {
         />
       </CardContent>
     </Card>
+
+{isEditModalOpen && (
+
+       <EditUser 
+       onClose={() => setIsEditModalOpen(false)}
+       onSave={handleSave}
+       userData={selectedUserForEdit}
+       refetch={refetch}
+     />
+)}
+   <Dialog
+        open={deleteConfirmationOpen}
+        onClose={() => {setDeleteConfirmationOpen(false); setUserToDelete(null)}}
+        aria-labelledby="delete-confirmation-title"
+        aria-describedby="delete-confirmation-description"
+      >
+        <DialogTitle id="delete-confirmation-title">
+          Confirm Deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-confirmation-description">
+            Are you sure you want to delete this owner? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {setDeleteConfirmationOpen(false); setUserToDelete(null)}} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete(userToDelete)} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };
 

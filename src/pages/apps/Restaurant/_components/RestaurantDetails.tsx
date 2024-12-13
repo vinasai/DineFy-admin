@@ -1,4 +1,4 @@
-import React from "react";
+import React ,{useEffect} from "react";
 import {
   Dialog,
   DialogActions,
@@ -7,8 +7,10 @@ import {
   Button,
   Typography,
   Grid,
-  Divider,
+  Chip,
 } from "@mui/material";
+import {useFetchOwnerDataByIdMutation} from "@/redux/api/owner/ownerApi";
+
 
 interface Restaurant {
   name: string;
@@ -16,6 +18,22 @@ interface Restaurant {
   location: string;
   country: string;
   contact_number: string;
+  email: string;
+  website: string;
+  social_media: {
+    twitter: string;
+    instagram: string;
+    facebook: string;
+  };
+  opening_hours: {
+    monday: { open: string; close: string };
+    tuesday: { open: string; close: string };
+    wednesday: { open: string; close: string };
+    thursday: { open: string; close: string };
+    friday: { open: string; close: string };
+    saturday: { open: string; close: string };
+    sunday: { open: string; close: string };
+  };
   contact_person_name: string;
   contact_person_position: string;
   restaurant_category: string;
@@ -24,6 +42,8 @@ interface Restaurant {
   subscription: string;
   isActive: boolean;
   thumbnail_photo: string;
+  owner: string;
+  qr_code: string;
 }
 
 interface RestaurantDetailsModalProps {
@@ -37,129 +57,279 @@ const RestaurantDetailsModal: React.FC<RestaurantDetailsModalProps> = ({
   restaurant,
   onClose,
 }) => {
-  if (!restaurant) return null; // Don't render the modal if restaurant is not provided.
+  
+  const [fetchOwnerDataById, { data: ownerData, error, isLoading  }] = useFetchOwnerDataByIdMutation();
+
+  useEffect(() => {
+    if (open && restaurant?.owner) {
+      fetchOwnerDataById({ id: restaurant.owner });
+    }
+  }, [open, restaurant?.owner, fetchOwnerDataById]);
+  const daysOrder: (keyof Restaurant["opening_hours"])[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+  if (!restaurant) return null;
 
   return (
     <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="xl"
-      PaperProps={{
-        sx: {
-          borderRadius: "12px", // Rounded corners
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Soft shadow
-        },
-      }}
-    >
-      <DialogTitle className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-xl">
+  open={open}
+  onClose={onClose}
+  fullWidth
+  maxWidth="xl"
+  PaperProps={{
+    sx: {
+      borderRadius: "12px",
+      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+      height: "90vh", // Set the desired height
+      maxHeight: "90vh", // Ensure it doesn't exceed the viewport height
+    },
+  }}
+>
+      <DialogTitle className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-xl flex felx-row items-center">
         <Typography variant="h5" className="font-semibold">
           {restaurant.name}
         </Typography>
+        <Chip
+          label={restaurant.isActive ? "Active" : "Inactive"}
+          color={restaurant.isActive ? "success" : "error"} 
+          size="small"
+          sx={{ ml: 2 }}
+        />
       </DialogTitle>
-      <DialogContent className="p-6 mt-11 space-y-6 bg-white rounded-b-xl overflow-y-auto">
-        <Grid container spacing={4} alignItems="stretch">
-          {/* Restaurant Image */}
-          <Grid item xs={12} sm={4}>
-            <div className="rounded-lg overflow-hidden shadow-lg h-full">
-              <img
-                src={restaurant.thumbnail_photo}
-                alt={restaurant.name}
-                className="w-full h-full object-cover transition-transform transform"
-              />
-            </div>
-          </Grid>
+      <DialogContent className="p-6 space-y-0 bg-white rounded-b-xl flex">
+        {/* Fixed Left Side - Restaurant Image */}
+        <div className="w-1/3 pr-4 flex-shrink-0 mt-6">
+          <div className="rounded-lg overflow-hidden shadow-lg h-[70vh] sticky top-0">
+            <img
+              src={restaurant.thumbnail_photo}
+              alt={restaurant.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
 
-          {/* Restaurant Details */}
-          <Grid item xs={12} sm={8} className="flex flex-col justify-between">
-            {/* About Section */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-md mb-4 flex-1">
-              <Typography
-                variant="h6"
-                className="font-semibold text-gray-800 mb-2"
-              >
-                About the Restaurant
-              </Typography>
-              <Typography variant="body2" className="text-gray-700">
-                {restaurant.about}
-              </Typography>
-            </div>
-
-            <Divider className="my-4" />
-
-            {/* Contact Section */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-md mb-4 flex-1">
-              <Typography
-                variant="h6"
-                className="font-semibold text-gray-800 mb-2"
-              >
-                Contact Details
-              </Typography>
-              <div className="space-y-2">
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Phone:</strong> {restaurant.contact_number}
+        {/* Scrollable Right Side */}
+        <div className="w-2/3 pl-4 overflow-y-auto max-h-[90vh] py-6 px-2 ">
+          <Grid container spacing={3}>
+            {/* About Section - Full Width */}
+            <Grid item xs={12}>
+              <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 mb-2"
+                >
+                  About
                 </Typography>
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Contact Person:</strong>{" "}
-                  {restaurant.contact_person_name} -{" "}
-                  {restaurant.contact_person_position}
+                <Typography variant="body2" className="text-gray-500">
+                  {restaurant.about}
                 </Typography>
+                <div className="flex flex-row items-center">
+                    <div className="rounded-lg overflow-hidden shadow-lg h-[100px] w-[100px] sticky mt-6">
+                        <img
+                          src={restaurant.qr_code}
+                          alt={restaurant.name}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                  </div>
+                <Button
+                        variant="contained"
+                        color="primary"
+                      sx={{ ml: 2, mt: 2 , height: 40}}
+                      >
+                        Download QR Code
+              </Button>
+             </div>
               </div>
-            </div>
+            
+              
+            </Grid>
 
-            <Divider className="my-4" />
+            {/* Location Section */}
+            <Grid item xs={12}>
+              <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 mb-2"
+                >
+                  Owner
+                </Typography>
 
-            {/* Additional Information Section */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-md mb-4 flex-1">
-              <Typography
-                variant="h6"
-                className="font-semibold text-gray-800 mb-2"
-              >
-                Additional Information
-              </Typography>
-              <div className="space-y-2">
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Category:</strong> {restaurant.restaurant_category}
-                </Typography>
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Location:</strong> {restaurant.location}
-                </Typography>
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Country:</strong> {restaurant.country}
-                </Typography>
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Average Budget:</strong> {restaurant.avg_budget}
-                </Typography>
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Average Rating:</strong> {restaurant.avg_rating}
-                </Typography>
-                <Typography variant="body2" className="text-gray-700">
-                  <strong>Subscription:</strong> {restaurant.subscription}
-                </Typography>
+                {isLoading ? (
+                    <Typography>Loading...</Typography>
+                  ) : ownerData ? (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}><strong>Owner:</strong></td>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}>{ownerData[0]?.name || "No owner assigned"}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}><strong>UUID:</strong></td>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}>{ownerData[0]?.id || "No owner assigned"}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}><strong>Contact:</strong></td>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}>{ownerData[0]?.contact_no || "No owner assigned"}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}><strong>Email:</strong></td>
+                          <td style={{ border: '1px solid #e0e0e0', padding: '8px' }}>{ownerData[0]?.email || "No owner assigned"}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  ) : (
+                    <Typography variant="body2" className="text-gray-500">
+                      No owner assigned
+                    </Typography>
+                  )}
               </div>
-            </div>
+            </Grid>
 
-            <Divider className="my-4" />
+           
+            {/* Two Column Section */}
+            <Grid item xs={12} sm={6}>
+              <div className="bg-gray-50 p-4 rounded-lg shadow-md h-full">
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 "
+                >
+                  Contact Details
+                </Typography>
+                <div className="mt-2 space-y-1 mb-4">
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Phone:</strong> {restaurant.contact_number}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Email:</strong> {restaurant.email || "N/A"}
+                  </Typography>
+                </div>
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800"
+                >
+                  Social Links
+                </Typography>
+                <div className="mt-2 space-y-1">
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Website:</strong> {restaurant.website || "N/A"}
+                  </Typography>
+                  {/*
+                  <div className="flex space-x-2 mt-2">
+                    {restaurant.social_media?.twitter && (
+                      <a
+                        href={restaurant.social_media.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <DeleteOutline />
+                      </a>
+                    )}
+                    {restaurant.social_media.instagram && (
+                      <a
+                        href={restaurant.social_media?.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <DeleteOutline />
+                      </a>
+                    )}
+                    {restaurant.social_media.facebook && (
+                      <a
+                        href={restaurant.social_media?.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <DeleteOutline />
+                      </a>
+                    )}
+                  </div>*/}
+                </div>
+              </div>
+            </Grid>
 
-            {/* Status Section */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-md mb-4 flex-1">
-              <Typography
-                variant="h6"
-                className="font-semibold text-gray-800 mb-2"
-              >
-                Status
-              </Typography>
-              <Typography
-                variant="body2"
-                className={`text-sm font-medium ${
-                  restaurant.isActive ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {restaurant.isActive ? "Active" : "Inactive"}
-              </Typography>
-            </div>
+            <Grid item xs={12} sm={6}>
+              <div className="bg-gray-50 p-4 rounded-lg shadow-md h-full">
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 mb-2"
+                >
+                  Location
+                </Typography>
+                <div className="mt-2 space-y-1 mb-4">
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Address:</strong> {restaurant.location}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Country:</strong> {restaurant.country}
+                  </Typography>
+                </div>
+
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 mb-2"
+                >
+                  Additional Information
+                </Typography>
+                <div className="mt-2 space-y-1 mb-4">
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Category:</strong> {restaurant.restaurant_category}
+                  </Typography>
+
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Average Budget:</strong> {restaurant.avg_budget}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-700">
+                    <strong>Average Rating:</strong> {restaurant.avg_rating}
+                  </Typography>
+                </div>
+              </div>
+            </Grid>
+
+            {/* Opening Hours Section - Full Width */}
+                        <Grid item xs={12}>
+              <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                <Typography
+                  variant="h6"
+                  className="font-semibold text-gray-800 mb-2"
+                >
+                  Opening Hours
+                </Typography>
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Day
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Open
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Close
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+  {daysOrder.map((day) => {
+    const hours = restaurant.opening_hours[day as keyof typeof restaurant.opening_hours];
+    return (
+      <tr key={day}>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+          {day.charAt(0).toUpperCase() + day.slice(1)}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {hours?.open || "N/A"}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {hours?.close || "N/A"}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+                </table>
+              </div>
+            </Grid>
           </Grid>
-        </Grid>
+        </div>
       </DialogContent>
       <DialogActions>
         <Button

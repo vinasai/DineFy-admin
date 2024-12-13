@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { Helmet } from 'react-helmet'
 import { Link } from 'react-router-dom'
 
 interface PageTitleProps {
@@ -9,12 +8,10 @@ interface PageTitleProps {
 }
 
 const PageBreadcrumb = ({ subName, title, addedChild }: PageTitleProps) => {
-	const breadcrumbItems = ['Attex', subName, title]
+	const breadcrumbItems = ['DineFy', subName || '', title || '']
 	return (
 		<>
-			<Helmet>
-				<title>{title} | Attex - Responsive Tailwind CSS 3 Admin Dashboard</title>
-			</Helmet>
+
 			{subName && (
 				<div className="flex justify-between items-center mb-6">
 					<div className="flex gap-4">

@@ -19,7 +19,7 @@ const PlacementTooltips = () => {
 							<button id={`tooltip1-${idx}`} className="btn bg-primary text-white">
 								Tooltip {placement.charAt(0).toUpperCase() + placement.slice(1)}
 							</button>
-							<Tooltip place={placement} content={`${placement.charAt(0).toUpperCase() + placement.slice(1)} tooltip`} anchorId={`tooltip1-${idx}`} />
+							{/* <Tooltip place={placement} content={`${placement.charAt(0).toUpperCase() + placement.slice(1)} tooltip`} anchorId={`tooltip1-${idx}`} /> */}
 						</div>
 					))}
 				</div>
@@ -41,7 +41,7 @@ const ColoredTooltips = () => {
 							<button id={`tooltip-${idx}`} className={`btn bg-${color} text-white`}>
 								{color.charAt(0).toUpperCase() + color.slice(1)}
 							</button>
-							<Tooltip place="top" content={`${color.charAt(0).toUpperCase() + color.slice(1)} Tooltip`} anchorId={`tooltip-${idx}`} variant={color} />
+							{/* <Tooltip place="top" content={`${color.charAt(0).toUpperCase() + color.slice(1)} Tooltip`} anchorId={`tooltip-${idx}`} variant={color} /> */}
 						</div>
 					))}
 				</div>
@@ -58,13 +58,13 @@ const RealExampleTooltip = () => {
 
 				<div className="text-muted">
 					You can use frost
-					<Tooltip place="bottom" content={'Why you see at bottom'} anchorId="tooltip-real" />
+					{/* <Tooltip place="bottom" content={'Why you see at bottom'} anchorId="tooltip-real" /> */}
 					<span className="underline italic cursor-help" id="tooltip-real">
 						{' '}
 						tooltip{' '}
 					</span>
 					to specify extra information. You can also use in
-					<Tooltip place="bottom" anchorId="tooltip-large" style={{ backgroundColor: 'rgba(0,0,0,0.0)' }}>
+					{/* <Tooltip place="bottom" anchorId="tooltip-large" style={{ backgroundColor: 'rgba(0,0,0,0.0)' }}>
 						<div className="max-w-xs bg-white border border-gray-100 text-left rounded-lg dark:bg-gray-800 dark:border-gray-700 p-3">
 							<p className="block text-lg font-medium">Overview</p>
 							<div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -78,7 +78,7 @@ const RealExampleTooltip = () => {
 								</dl>
 							</div>
 						</div>
-					</Tooltip>
+					</Tooltip> */}
 					<span className="underline italic cursor-help" id="tooltip-large">
 						{' '}
 						large{' '}

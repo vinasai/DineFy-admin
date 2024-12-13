@@ -23,31 +23,11 @@ const RecoverPassword = React.lazy(
 const LockScreen = React.lazy(() => import("../pages/auth/LockScreen"));
 const ConfirmMail = React.lazy(() => import("../pages/auth/ConfirmMail"));
 
-// auth2
-const Login2 = React.lazy(() => import("../pages/auth2/Login2"));
-const Register2 = React.lazy(() => import("../pages/auth2/Register2"));
-const Logout2 = React.lazy(() => import("../pages/auth2/Logout2"));
-const RecoverPassword2 = React.lazy(
-  () => import("../pages/auth2/RecoverPassword2")
-);
-const LockScreen2 = React.lazy(() => import("../pages/auth2/LockScreen2"));
-const ConfirmMail2 = React.lazy(() => import("../pages/auth2/ConfirmMail2"));
 
 // dashboard
 const Ecommerce = React.lazy(() => import("../pages/dashboard/ecommerce/"));
 const Analytics = React.lazy(() => import("../pages/dashboard/Analytics/"));
 
-// apps
-const CalendarApp = React.lazy(() => import("../pages/apps/Calendar/"));
-const ChatApp = React.lazy(() => import("../pages/apps/Chat/"));
-const EmailInbox = React.lazy(() => import("../pages/apps/Email/Inbox"));
-const EmailRead = React.lazy(() => import("../pages/apps/Email/Read"));
-const TasksList = React.lazy(() => import("../pages/apps/Tasks/TasksList/"));
-const TasksDetails = React.lazy(
-  () => import("../pages/apps/Tasks/TasksDetails/")
-);
-const KanbanApp = React.lazy(() => import("../pages/apps/Kanban/"));
-const FileManagerApp = React.lazy(() => import("../pages/apps/FileManager/"));
 
 // pages
 const ProfilePages = React.lazy(() => import("../pages/other/Profile/"));
@@ -77,17 +57,17 @@ const Skeleton = React.lazy(() => import("../pages/ui/Skeleton"));
 const Popovers = React.lazy(() => import("../pages/ui/Popovers"));
 const Progress = React.lazy(() => import("../pages/ui/Progress"));
 const Spinners = React.lazy(() => import("../pages/ui/Spinners"));
-const Tabs = React.lazy(() => import("../pages/ui/Tabs"));
+//const Tabs = React.lazy(() => import("../pages/ui/Tabs"));
 const Tooltips = React.lazy(() => import("../pages/ui/Tooltips"));
 const Typography = React.lazy(() => import("../pages/ui/Typography"));
 
 // extended ui
-const SwiperPage = React.lazy(() => import("../pages/extended/SwiperPage"));
-const NestableList = React.lazy(() => import("../pages/extended/NestableList"));
-const Ratings = React.lazy(() => import("../pages/extended/Ratings"));
-const Player = React.lazy(() => import("../pages/extended/Player"));
-const Scrollbar = React.lazy(() => import("../pages/extended/Scrollbar"));
-const Tooltip = React.lazy(() => import("../pages/extended/Tooltip"));
+//const SwiperPage = React.lazy(() => import("../pages/extended/SwiperPage"));
+//const NestableList = React.lazy(() => import("../pages/extended/NestableList"));
+//const Ratings = React.lazy(() => import("../pages/extended/Ratings"));
+//const Player = React.lazy(() => import("../pages/extended/Player"));
+//const Scrollbar = React.lazy(() => import("../pages/extended/Scrollbar"));
+//const Tooltip = React.lazy(() => import("../pages/extended/Tooltip"));
 
 // icons
 const RemixIcons = React.lazy(() => import("../pages/ui/icons/RemixIcons"));
@@ -156,22 +136,21 @@ const OtherChartjs = React.lazy(
 );
 
 // forms
-const BasicElements = React.lazy(
-  () => import("../pages/ui/forms/BasicElements")
-);
-const FormAdvanced = React.lazy(() => import("../pages/ui/forms/FormAdvanced"));
-const Validation = React.lazy(() => import("../pages/ui/forms/Validation"));
-const FormsLayout = React.lazy(() => import("../pages/ui/forms/FormsLayout"));
-const FileUploads = React.lazy(() => import("../pages/ui/forms/FileUploads"));
-const Editors = React.lazy(() => import("../pages/ui/forms/Editors"));
+
+//const BasicElements = React.lazy(() => import("../pages/ui/forms/BasicElements"));
+//const FormAdvanced = React.lazy(() => import("../pages/ui/forms/FormAdvanced"));
+//const Validation = React.lazy(() => import("../pages/ui/forms/Validation"));
+//const FormsLayout = React.lazy(() => import("../pages/ui/forms/FormsLayout"));
+//const FileUploads = React.lazy(() => import("../pages/ui/forms/FileUploads"));
+//const Editors = React.lazy(() => import("../pages/ui/forms/Editors"));
 
 // tables
 const BasicTables = React.lazy(() => import("../pages/ui/tables/BasicTables"));
 const DataTables = React.lazy(() => import("../pages/ui/tables/DataTables"));
 
 // maps
-const GoogleMaps = React.lazy(() => import("../pages/ui/maps/GoogleMaps"));
-const VectorMaps = React.lazy(() => import("../pages/ui/maps/VectorMaps"));
+//const GoogleMaps = React.lazy(() => import("../pages/ui/maps/GoogleMaps"));
+//const VectorMaps = React.lazy(() => import("../pages/ui/maps/VectorMaps"));
 
 // error
 const Error404 = React.lazy(() => import("../pages/error/Error404"));
@@ -198,33 +177,29 @@ const dashboardRoutes: RoutesProps = {
   header: "Navigation",
   children: [
     {
-      path: "/",
+      path: "/apps/",
       name: "Root",
-      element: <Navigate to="/ecommerce" />,
+      element: <Navigate to="/dashboard" />,
       route: PrivateRoute,
     },
     {
-      path: "/ecommerce",
-      name: "Ecommerce",
-      element: <Ecommerce />,
+      path: "/apps/dashboard",
+      name: "Dashboard",
+      element: <DashBoard />,
       route: PrivateRoute,
     },
-    {
-      path: "/analytics",
-      name: "Analytics",
-      element: <Analytics />,
-      route: PrivateRoute,
-    },
+    
   ],
 };
 
-const dashBoardRoutes: RoutesProps = {
-  path: "/apps/dashboard",
-  name: "Dashboard",
-  icon: "home",
-  header: "Navigation",
-  element: <DashBoard />,
-};
+
+// const dashBoardRoutes: RoutesProps = {
+//   path: "/apps/dashboard",
+//   name: "Dashboard",
+//   icon: "home",
+//   header: "Navigation",
+//   element: <DashBoard />,
+// };
 
 // Apps
 const ownerAppRoutes: RoutesProps = {
@@ -275,89 +250,13 @@ const userManagement: RoutesProps = {
   header: "Apps",
 };
 
-const chatAppRoutes: RoutesProps = {
-  path: "/apps/chat",
-  name: "Chat",
-  route: PrivateRoute,
-  roles: ["Admin"],
-  icon: "chat",
-  element: <ChatApp />,
-  header: "Apps",
-};
 
-const emailAppRoutes: RoutesProps = {
-  path: "/apps/email",
-  name: "Email",
-  route: PrivateRoute,
-  roles: ["Admin"],
-  icon: "email",
-  children: [
-    {
-      path: "/apps/email/inbox",
-      name: "Inbox",
-      element: <EmailInbox />,
-      route: PrivateRoute,
-    },
-    {
-      path: "/apps/email/read",
-      name: "Read Email",
-      element: <EmailRead />,
-      route: PrivateRoute,
-    },
-  ],
-};
-
-const tasksAppRoutes: RoutesProps = {
-  path: "/apps/tasks",
-  name: "Tasks",
-  route: PrivateRoute,
-  roles: ["Admin"],
-  icon: "task",
-  children: [
-    {
-      path: "/apps/tasks/list",
-      name: "List",
-      element: <TasksList />,
-      route: PrivateRoute,
-    },
-    {
-      path: "/apps/tasks/details",
-      name: "Details",
-      element: <TasksDetails />,
-      route: PrivateRoute,
-    },
-  ],
-};
-
-const kanbanAppRoutes: RoutesProps = {
-  path: "/apps/kanban",
-  name: "Kanban Board",
-  route: PrivateRoute,
-  roles: ["Admin"],
-  icon: "kanban",
-  element: <KanbanApp />,
-  header: "Apps",
-};
-
-const fileAppRoutes: RoutesProps = {
-  path: "/apps/file-manager",
-  name: "File Manager",
-  route: PrivateRoute,
-  roles: ["Admin"],
-  icon: "filemanager",
-  element: <FileManagerApp />,
-  header: "Apps",
-};
 
 const appRoutes = [
   ownerAppRoutes,
-  dashBoardRoutes,
+  //dashBoardRoutes,
   restaurantAppRoutes,
-  chatAppRoutes,
-  emailAppRoutes,
-  tasksAppRoutes,
-  kanbanAppRoutes,
-  fileAppRoutes,
+  
   restaurantSearch,
   userManagement,
 ];
@@ -515,12 +414,7 @@ const uiRoutes: RoutesProps = {
           element: <Ratio />,
           route: PrivateRoute,
         },
-        {
-          path: "/ui/tabs",
-          name: "Tabs",
-          element: <Tabs />,
-          route: PrivateRoute,
-        },
+        
         {
           path: "/ui/modals",
           name: "Modals",
@@ -557,42 +451,7 @@ const uiRoutes: RoutesProps = {
       path: "/extended-ui",
       name: "Extended UI",
       children: [
-        {
-          path: "/extended-ui/swiper",
-          name: "Swiper",
-          element: <SwiperPage />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/extended-ui/nestable-list",
-          name: "Nestable List",
-          element: <NestableList />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/extended-ui/ratings",
-          name: "Ratings",
-          element: <Ratings />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/extended-ui/player",
-          name: "Player",
-          element: <Player />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/extended-ui/scrollbar",
-          name: "Scrollbar",
-          element: <Scrollbar />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/extended-ui/tooltip",
-          name: "Tooltip",
-          element: <Tooltip />,
-          route: PrivateRoute,
-        },
+       
       ],
     },
     {
@@ -749,42 +608,8 @@ const uiRoutes: RoutesProps = {
       path: "/ui/forms",
       name: "Forms",
       children: [
-        {
-          path: "/ui/forms/basic-elements",
-          name: "Basic Elements",
-          element: <BasicElements />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/ui/forms/form-advanced",
-          name: "Form Advanced",
-          element: <FormAdvanced />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/ui/forms/validation",
-          name: "Validation",
-          element: <Validation />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/ui/forms/layout",
-          name: "layout",
-          element: <FormsLayout />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/ui/forms/file-uploads",
-          name: "File Uploads",
-          element: <FileUploads />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/ui/forms/editors",
-          name: "Editors",
-          element: <Editors />,
-          route: PrivateRoute,
-        },
+        
+        
       ],
     },
     {
@@ -809,18 +634,7 @@ const uiRoutes: RoutesProps = {
       path: "/ui/maps",
       name: "Maps",
       children: [
-        {
-          path: "/ui/maps/google-maps",
-          name: "Google Maps",
-          element: <GoogleMaps />,
-          route: PrivateRoute,
-        },
-        {
-          path: "/ui/maps/vector-maps",
-          name: "Vector Maps",
-          element: <VectorMaps />,
-          route: PrivateRoute,
-        },
+       
       ],
     },
   ],
@@ -834,72 +648,42 @@ const authRoutes: RoutesProps[] = [
     element: <Login />,
     route: Route,
   },
-  {
-    path: "/auth/login2",
-    name: "Login 2",
-    element: <Login2 />,
-    route: Route,
-  },
+
   {
     path: "/auth/register",
     name: "Register",
     element: <Register />,
     route: Route,
   },
-  {
-    path: "/auth/register2",
-    name: "Register 2",
-    element: <Register2 />,
-    route: Route,
-  },
+
   {
     path: "/auth/logout",
     name: "Logout",
     element: <Logout />,
     route: Route,
   },
-  {
-    path: "/auth/logout2",
-    name: "Logout 2",
-    element: <Logout2 />,
-    route: Route,
-  },
+  
   {
     path: "/auth/recover-password",
     name: "Recover Password",
     element: <RecoverPassword />,
     route: Route,
   },
-  {
-    path: "/auth/recover-password2",
-    name: "Recover Password 2",
-    element: <RecoverPassword2 />,
-    route: Route,
-  },
+  
   {
     path: "/auth/lock-screen",
     name: "Lock Screen",
     element: <LockScreen />,
     route: Route,
   },
-  {
-    path: "/auth/lock-screen2",
-    name: "Lock Screen 2",
-    element: <LockScreen2 />,
-    route: Route,
-  },
+  
   {
     path: "/auth/confirm-mail",
     name: "Confirm Mail",
     element: <ConfirmMail />,
     route: Route,
   },
-  {
-    path: "/auth/confirm-mail2",
-    name: "Confirm Mail 2",
-    element: <ConfirmMail2 />,
-    route: Route,
-  },
+  
 ];
 
 // public routes

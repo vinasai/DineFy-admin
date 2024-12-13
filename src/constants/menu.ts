@@ -51,30 +51,26 @@ const MENU_ITEMS: MenuItemTypes[] = [
   //   ],
   // },
   {
-    key: "apps",
-    label: "Apps",
-    isTitle: true,
-  },
-  {
     key: "Restaurant",
     label: "Restaurant",
     isTitle: false,
     icon: "ri-hotel-line",
     badge: {
-      variant: "bg-success rounded-full",
-      text: "2",
+      variant: "",
+      text: "\u2B9F",
+      
     },
     children: [
       {
         key: "apps-owner",
-        label: "Owner Management",
+        label: "Owners",
         isTitle: false,
         icon: "ri-admin-line",
         url: "/apps/owner",
       },
       {
         key: "apps-restaurant",
-        label: "Resturent Management",
+        label: "All Restaurants",
         isTitle: false,
         icon: "ri-hotel-line",
         url: "/apps/restaurant",
@@ -84,14 +80,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
 
   {
     key: "apps-restaurant",
-    label: "User Management",
+    label: "Mobile Users",
     isTitle: false,
     icon: "ri-user-line",
     url: "/apps/users",
   },
   {
     key: "apps-restaurant",
-    label: "Restaurant Search",
+    label: "Google Map Fetch",
     isTitle: false,
     icon: "ri-search-line",
     url: "/apps/hotel-search",

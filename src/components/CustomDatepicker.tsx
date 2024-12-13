@@ -58,7 +58,8 @@ const CustomDatepicker = (props: CustomDatepickerProps) => {
 
 	return (
 		<>
-			<DatePicker customInput={input} timeIntervals={props.tI} selected={props.value} value={props.value.toDateString()} onChange={(date: any) => props.onChange(date)} showTimeSelect={props.showTimeSelect} timeFormat={props.timeFormat || 'hh:mm a'} timeCaption={props.timeCaption} dateFormat={props.dateFormat || 'MM/dd/yyyy'} minDate={props.minDate} maxDate={props.maxDate} monthsShown={props.monthsShown} showTimeSelectOnly={props.showTimeSelectOnly} inline={props.inline} autoComplete="off" />
+
+			{/* {<DatePicker customInput={input} timeIntervals={props.tI} selected={props.value} value={props.value.toDateString()} onChange={(date: any) => props.onChange(date)} showTimeSelect={props.showTimeSelect} timeFormat={props.timeFormat || 'hh:mm a'} timeCaption={props.timeCaption} dateFormat={props.dateFormat || 'MM/dd/yyyy'} minDate={props.minDate} maxDate={props.maxDate} monthsShown={props.monthsShown} showTimeSelectOnly={props.showTimeSelectOnly} inline={props.inline} autoComplete="off" />} */}
 		</>
 	)
 }

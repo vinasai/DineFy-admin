@@ -22,8 +22,8 @@ const ProfileDropDown = (props: ProfileDropDownProps) => {
 			<>
 				<img src={profilePic} alt="user-image" className="rounded-full h-8" />
 				<span className="md:flex flex-col gap-0.5 text-start hidden">
-					<h5 className="text-sm">Tosha Minner</h5>
-					<span className="text-xs">Founder</span>
+					<h5 className="text-sm">Nipun Perera</h5>
+					<span className="text-xs">Admin</span>
 				</span>
 			</>
 		)

@@ -14,9 +14,10 @@ interface FormData {
   name: string;
   email: string;
   country: string;
-  
-  contact:string;
+  contact: string;
+  address: string;
   restaurants: {
+    id: string;
     name: string;
     location: string;
   }[];
@@ -24,12 +25,16 @@ interface FormData {
 
 interface Step2RestaurantInfoProps {
   restaurants: {
+    id: string;
     name: string;
     location: string;
   }[];
+
+  
   setRestaurants: React.Dispatch<
     React.SetStateAction<
       {
+        id: string;
         name: string;
         location: string;
       }[]
@@ -43,45 +48,67 @@ const Step2RestaurantInfo: React.FC<Step2RestaurantInfoProps> = ({
   setRestaurants,
   setValue,
 }) => {
-  const addRestaurantField = () => {
-    setRestaurants((prev) => [...prev, { name: "", location: "" }]);
-  };
+  const { data: restaurantOptions, refetch, isFetching } = useGetRestaurantApiQuery("", {
+    refetchOnMountOrArgChange: true, // Ensures fresh data on every mount
+  });
 
-  const removeRestaurantField = (index: number) => {
-    const updatedRestaurants = restaurants.filter((_, i) => i !== index);
-    setRestaurants(updatedRestaurants);
-    setValue("restaurants", updatedRestaurants);
-  };
+// Ensure fresh data is fetched whenever actions occur
+const addRestaurantField = () => {
+  setRestaurants((prev) => [...prev, { id: "", name: "", location: "" }]);
+  
+};
 
-  const handleRestaurantChange = (
-    index: number,
-    field: keyof FormData["restaurants"][number],
-    value: string
-  ) => {
-    const updatedRestaurants = [...restaurants];
-    updatedRestaurants[index][field] = value;
+const removeRestaurantField = (index: number) => {
+  if (index === 0) return;
+
+  const updatedRestaurants = restaurants.filter((_, i) => i !== index);
+  setRestaurants(updatedRestaurants);
+  setValue("restaurants", updatedRestaurants);
+ 
+};
+
+const handleRestaurantChange = (
+  index: number,
+  field: keyof FormData["restaurants"][number],
+  value: string
+) => {
+  const updatedRestaurants = [...restaurants];
+  updatedRestaurants[index][field] = value;
+
+  setRestaurants(updatedRestaurants);
+  setValue("restaurants", updatedRestaurants);
   
-    setRestaurants(updatedRestaurants);
-  
-    // Set form value correctly
-    setValue("restaurants", updatedRestaurants);
-  };
-  
-  // Fetching restaurants from API
-  const { data: restaurantOptions } = useGetRestaurantApiQuery("");
+};
 
   return (
     <div className="space-y-4">
       {restaurants.map((restaurant, index) => (
-        <Box key={index} className="p-4 border border-gray-200 rounded-md">
+        <Box key={index} className="p-4 border border-gray-200 rounded-md mt-4">
           <div>
             <label>Restaurant Name</label>
             <Autocomplete
-              options={restaurantOptions || []} // API data as options
+              options={
+                restaurantOptions
+                  ? restaurantOptions.filter(
+                      (option) =>
+                        !restaurants.some((r) => r.name === option.name)
+                    )
+                  : []
+              } // Exclude already-selected restaurants
               getOptionLabel={(option) => option.name || ""}
+              value={
+                restaurantOptions?.find(
+                  (option) => option.name === restaurant.name
+                ) || null
+              } // Ensure the Autocomplete is controlled
               onChange={(_, selectedRestaurant) => {
                 if (selectedRestaurant) {
                   // Populate fields when a restaurant is selected
+                  handleRestaurantChange(
+                    index,
+                    "id",
+                    selectedRestaurant.id
+                  );
                   handleRestaurantChange(
                     index,
                     "name",
@@ -92,6 +119,11 @@ const Step2RestaurantInfo: React.FC<Step2RestaurantInfoProps> = ({
                     "location",
                     selectedRestaurant.location
                   );
+                } else {
+                  // Clear fields if selection is removed
+                  handleRestaurantChange(index, "id", "");
+                  handleRestaurantChange(index, "name", "");
+                  handleRestaurantChange(index, "location", "");
                 }
               }}
               renderInput={(params) => (
@@ -113,15 +145,19 @@ const Step2RestaurantInfo: React.FC<Step2RestaurantInfoProps> = ({
               }
               placeholder="Restaurant location"
               className="w-full border border-gray-300 p-2 rounded"
+              disabled
             />
           </div>
 
-          <IconButton
-            color="error"
-            onClick={() => removeRestaurantField(index)}
-          >
-            <DeleteIcon />
-          </IconButton>
+          {/* Show delete button only for restaurants after the first one */}
+          {index > 0 && (
+            <IconButton
+              color="error"
+              onClick={() => removeRestaurantField(index)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
         </Box>
       ))}
 
@@ -131,5 +167,6 @@ const Step2RestaurantInfo: React.FC<Step2RestaurantInfoProps> = ({
     </div>
   );
 };
+
 
 export default Step2RestaurantInfo;

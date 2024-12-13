@@ -1,28 +1,117 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Button,
+  Grid,
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  Checkbox,
+  IconButton,
+  Divider,
+  Select,
+  MenuItem,
+  CircularProgress
 } from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
 import { useDropzone } from "react-dropzone";
+import { DeleteOutline } from "@mui/icons-material";
+import {useUpdateRestaurantApiMutation} from "@/redux/api/restaurant/restaurantApiSlice";
+import { UUID } from "crypto";
 
-interface Restaurant {
-  id: number;
+
+interface OpeningHours {
+  open: string | null;
+  close: string | null;
+}
+
+interface DailyHours {
+  [key: string]: OpeningHours;
+}
+
+interface Facility {
+  [key: string]: boolean;
+}
+
+interface FacilityCategory {
+  icon: string;
   name: string;
-  description: string;
-  address: string;
+  facilities: Facility;
+}
+
+interface EditRestaurant {
+  id: UUID;
+  name: string;
+  about: string;
+  avg_budget: string;
+  restaurant_category: string;
+  cuisine_type: string;
+  contact_number: string;
+  location: string;
   country: string;
-  imageUrl: string;
-  isActive: boolean;
+  postal_code: string;
+  
+  // Social Links
+  website: string;
+  social_media: {
+    twitter: string;
+    instagram: string;
+    tiktok: string;
+  }
+
+  // Opening Hours
+  opening_hours: DailyHours;
+
+  // Features/Facilities
+  restaurant_email: string; // Changed from email
+  facility: {  // Changed from facilities
+    categories: {
+      icon: string;
+      name: string;
+      facilities: {
+        [key: string]: boolean;
+      };
+    }[];
+  };
+
+  // Images
+  thumbnail_photo: File | null;
+  gallery: (File | string)[];
+
+
+
 }
 
 interface EditRestaurantModalProps {
   open: boolean;
-  restaurant: Restaurant | null;
+  restaurant: EditRestaurant | null;
   onClose: () => void;
-  onSave: (updatedRestaurant: Restaurant) => void;
+  onSave: (updatedRestaurant: EditRestaurant) => void;
+}
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`restaurant-tabpanel-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
 }
 
 const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
@@ -31,163 +120,1168 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const [name, setName] = React.useState<string>(restaurant?.name || "");
-  const [description, setDescription] = React.useState<string>(
-    restaurant?.description || ""
-  );
-  const [address, setAddress] = React.useState<string>(
-    restaurant?.address || ""
-  );
-  const [country, setCountry] = React.useState<string>(
-    restaurant?.country || ""
-  );
-  const [isActive, setIsActive] = React.useState<boolean>(
-    restaurant?.isActive || true
-  );
-  const [imageFile, setImageFile] = React.useState<File | null>(null);
-  const [previewImage, setPreviewImage] = React.useState<
-    string | ArrayBuffer | null
-  >("");
+  const { handleSubmit, control, reset } = useForm<EditRestaurant>({
+    defaultValues: {
+      id: restaurant?.id,
+      name:  "",
+      about: "",
+      
+      avg_budget: "",
+      restaurant_category: "",
+      cuisine_type: "",
+      contact_number: "",
+      location: "",
+      country: "",
+      postal_code: "",
+      
+      // Social Links
+      website: "",
+      social_media: {
+        twitter: "",
+        instagram: "",
+        tiktok: "", },
+  
+      // Opening Hours
+      opening_hours: {
+        monday: { open: "", close: "" },
+        tuesday: { open: "", close: "" },
+        wednesday: { open: "", close: "" },
+        thursday: { open: "", close: "" },
+        friday: { open: "", close: "" },
+        saturday: { open: "", close: "" },
+        sunday: { open: "", close: "" }
+      },
+  
+      // Features/Facilities
+      facility: {
+        categories: [
+          {
+            icon: "food",
+            name: "Food and Dining",
+            facilities: {
+              patio: false,
+              buffet: false,
+              veganFood: false,
+              halalFoods: false,
+              reservations: false,
+              nutsFreeFoods: false,
+              glutenFreeFoods: false,
+              birthdayDiscounts: false,
+              creditCardPayment: false,
+              birthdayCelebration: false
+            }
+          },
+          {
+            icon: "family",
+            name: "Family",
+            facilities: {
+              familyRooms: false,
+              kidsPlayArea: false,
+              crayonsForKids: false,
+              diaperChangeRoom: false,
+              highchairForKids: false
+            }
+          },
+          {
+            icon: "entertainment",
+            name: "Entertainment",
+            facilities: {
+              dj: false,
+              tv: false,
+              wifi: false,
+              music: false,
+              liveBand: false,
+              frontDesk: false,
+              poolTable: false,
+              freeParking: false,
+              meetingArea: false,
+              conferenceRoom: false
+            }
+          }
+        ]
+      },
 
-  React.useEffect(() => {
-    if (restaurant) {
-      setName(restaurant.name);
-      setDescription(restaurant.description);
-      setAddress(restaurant.address);
-      setCountry(restaurant.country);
-      setIsActive(restaurant.isActive);
+      // Images
+      thumbnail_photo: null,
+      gallery: [],
+  
     }
-  }, [restaurant]);
+  },);
 
-  React.useEffect(() => {
-    if (imageFile) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(imageFile);
-    } else {
-      setPreviewImage(null);
-    }
-  }, [imageFile]);
 
-  const handleSave = () => {
-    if (restaurant) {
-      onSave({
-        ...restaurant,
-        name,
-        description,
-        address,
-        country,
-        imageUrl: previewImage ? (previewImage as string) : restaurant.imageUrl,
-        isActive,
-      });
-    }
-    onClose();
+
+  const [activeTab, setActiveTab] = useState(0);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [restaurantOnEditing, setRestaurantOnEditing] = useState(false);
+
+  const [updateRestaurant] = useUpdateRestaurantApiMutation();
+
+  
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
-  const onDrop = (acceptedFiles: File[]) => {
+  const onDropThumbnail = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setImageFile(acceptedFiles[0]);
+      setUploadedImage(acceptedFiles[0]);
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+  const onDropGallery = (acceptedFiles: File[]) => {
+    setNewImages(prev => [...prev, ...acceptedFiles]);
+  };
+
+  const { getRootProps: getRootPropsThumbnail, getInputProps: getInputPropsThumbnail, isDragActive: isDragActiveThumbnail } = useDropzone({
+    onDrop: onDropThumbnail,
     accept: { "image/*": [] },
+    maxFiles: 1,
   });
 
+// Update dropzone config
+const { getRootProps: getRootPropsGallery, getInputProps: getInputPropsGallery, isDragActive: isDragActiveGallery } = useDropzone({
+  onDrop: onDropGallery,
+  accept: { "image/*": [] },
+  multiple: true
+});
+
+  const onSubmit = async(data: EditRestaurant) => {
+    
+    
+    const restaurantToUpdate = {
+      ...data,
+      thumbnail_photo: uploadedImage || data.thumbnail_photo, // Include the new uploaded image
+      gallery: [...existingImages, ...newImages],
+    };
+
+    if (!(restaurantToUpdate.about === "" || restaurantToUpdate.name === "" || restaurantToUpdate.contact_number === "" || restaurantToUpdate.location === "" || restaurantToUpdate.country === "" || restaurantToUpdate.thumbnail_photo === null || restaurantToUpdate.restaurant_category === "")) {
+      try {
+        // Log to verify data
+        console.log("Submitting update with thumbnail:", restaurantToUpdate.thumbnail_photo instanceof File);
+        setRestaurantOnEditing(true);
+        
+        const response = await updateRestaurant(restaurantToUpdate);
+        
+        
+        if ('error' in response) {
+          console.error("Error updating restaurant:", response.error);
+        } else {
+          
+          onSave(restaurantToUpdate);
+  
+          reset();
+          setUploadedImage(null);
+          setUploadedImages([]);
+          setNewImages([]);
+          setExistingImages([]);
+          setRestaurantOnEditing(false);
+          onClose();
+        }
+      } catch (error) {
+        console.error("Error in update submission:", error);
+      }
+    }else{
+      setActiveTab(0);
+      setTimeout(() => {
+        const missingFields = [
+          !data.about && "About",
+          !data.name && "Name",
+          !data.contact_number && "Contact Number",
+          !data.location && "Location",
+          !data.country && "Country",
+          !data.restaurant_category && "Restaurant Category",
+          !data.thumbnail_photo && "Thumbnail Photo"
+        ].filter(Boolean).join("\n");
+
+        alert(`Please fill in all the required fields in basic information:\n${missingFields}`);
+        }, 1000);
+    }
+  
+    
+  };
+
+ 
+
+  useEffect(() => {
+    if (restaurant) {
+      console.log("Restaurant data:", restaurant);
+      setExistingImages(
+        restaurant?.gallery
+          ? (restaurant.gallery
+              .filter((item): item is string => 
+                item !== null && 
+                item !== undefined && 
+                typeof item === 'string'
+              ))
+          : []
+      );
+      reset({
+        id: restaurant.id,
+        name: restaurant.name || "",
+        about: restaurant.about || "",
+        restaurant_email: restaurant.restaurant_email || "", // Changed from email
+        avg_budget: restaurant.avg_budget || "",
+        restaurant_category: restaurant.restaurant_category || "",
+        cuisine_type: restaurant.cuisine_type || "",
+        contact_number: restaurant.contact_number || "",
+        location: restaurant.location || "",
+        country: restaurant.country || "Canada",
+        postal_code: restaurant.postal_code || "",
+        
+        website: restaurant.website || "",
+        social_media: {
+          twitter: restaurant.social_media?.twitter || "",
+          instagram: restaurant.social_media?.instagram || "",
+          tiktok: restaurant.social_media?.tiktok || ""
+        },
+  
+        opening_hours: restaurant.opening_hours || {
+          monday: { open: "", close: "" },
+          tuesday: { open: "", close: "" },
+          wednesday: { open: "", close: "" },
+          thursday: { open: "", close: "" },
+          friday: { open: "", close: "" },
+          saturday: { open: "", close: "" },
+          sunday: { open: "", close: "" }
+        },
+  
+        // Fix facilities mapping
+        facility: {
+          categories: [
+            {
+              icon: "food",
+              name: "Food and Dining",
+              facilities: restaurant.facility?.categories?.[0]?.facilities || {}
+            },
+            {
+              icon: "family",
+              name: "Family",
+              facilities: restaurant.facility?.categories?.[1]?.facilities || {}
+            },
+            {
+              icon: "entertainment",
+              name: "Entertainment",
+              facilities: restaurant.facility?.categories?.[2]?.facilities || {}
+            }
+          ]
+        },
+  
+        thumbnail_photo: restaurant.thumbnail_photo || null,
+        gallery: restaurant.gallery || []
+      });
+    }
+  }, [restaurant, reset]);
+
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Edit Restaurant</DialogTitle>
-      <DialogContent>
-        <div
-          {...getRootProps()}
-          className={`flex justify-center items-center border-2 ${
-            isDragActive ? "border-blue-400 bg-blue-100" : "border-gray-300"
-          } rounded-lg p-4 mb-4 cursor-pointer`}
-          style={{ width: 200, height: 200 }}
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
+      <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
+        Edit Restaruant Details
+      </DialogTitle>
+
+      {restaurantOnEditing && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            bgcolor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+            zIndex: 1300, // Ensure it appears above other content
+          }}
         >
-          <input {...getInputProps()} />
-          {previewImage ? (
-            <img
-              src={previewImage as string}
-              alt="Preview"
-              className="w-36 h-36 rounded"
-            />
-          ) : (
-            <p className="text-center text-gray-500">
-              Drag & drop or click to upload an image
-            </p>
-          )}
-        </div>
+          <Box sx={{ textAlign: "center", padding: "16px", bgcolor: "#fff", borderRadius: "8px" }}>
+            <Typography variant="body1">Editing the restaurant...</Typography>
+            <CircularProgress />
+          </Box>
+        </Box>
+      )}
 
-        <div className="space-y-4">
-          {/* Name Field */}
-          <div>
-            <label className="block font-semibold mb-1">Restaurant Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded"
-            />
-          </div>
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onChange={handleTabChange}
+        aria-label="restaurant information tabs"
+        centered
+        sx={{
+          "& .MuiTabs-flexContainer": {
+            justifyContent: "space-around",
+          },
+          "& .MuiTab-root": {
+            flex: 1,
+            textAlign: "center",
+          },
+        }}
+      >
+        <Tab label="Edit Basic Information" />
+        <Tab label="Edit Facilities" />
+      </Tabs>
 
-          {/* Description Field */}
-          <div>
-            <label className="block font-semibold mb-1">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded"
-              rows={3}
-            />
-          </div>
+      <DialogContent>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ marginTop: "5px" }}>
+          {/* Basic Information Tab */}
+          <TabPanel value={activeTab} index={0}>
+            <Grid container spacing={3}>
 
-          {/* Address Field */}
-          <div>
-            <label className="block font-semibold mb-1">Address</label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded"
-            />
-          </div>
+              {/* Restaurant Basic Information */}
+              <Grid item xs={12}>
+                <Typography variant="h5">Restaurant Basic Information</Typography>
+                <Divider />
+              </Grid>
+          
+              {/* Restaurant Name */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Restaurant Name:*</label>
+                      <input
+                        {...field}
+                        type="text"
+                        required
+                        
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* Contact Number */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="contact_number"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Contact Number:*</label>
+                      <input
+                        {...field}
+                        type="text"
+                        required
+                       
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
 
-          {/* Country Field */}
-          <div>
-            <label className="block font-semibold mb-1">Country</label>
-            <input
-              type="text"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded"
-            />
-          </div>
+              {/* Email */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="restaurant_email"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Email:</label>
+                      <input
+                        {...field}
+                        type="email"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
 
-          {/* Active Checkbox */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="mr-2"
-            />
-            <label className="font-semibold">Active</label>
-          </div>
-        </div>
+                            {/* Average Budget */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="avg_budget"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <Box>
+                      <label>Average Budget:</label>
+                      <Select
+                        {...field}
+                        fullWidth
+                        variant="outlined"
+                        value={field.value || ""}
+                        style={{
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      >
+                        <MenuItem value="">
+                          <em>None</em>
+                        </MenuItem>
+                        <MenuItem value="">None</MenuItem>
+                        <MenuItem value="50$ - 100$">$50 - $200</MenuItem>
+                        <MenuItem value="100$ - 200$">$100 - $200</MenuItem>
+                        <MenuItem value="200$ - 300$">$200 - $300</MenuItem>
+                        <MenuItem value="300$ - 400$">$300 - $400</MenuItem>
+                        <MenuItem value="400$ - 500$">$400 - $500</MenuItem>
+                        <MenuItem value="500$+">$500+</MenuItem>
+                      </Select>
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* About */}
+              <Grid item xs={12}>
+                <Controller
+                  name="about"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>About:*</label>
+                      <textarea
+                        {...field}
+                        required
+                        value={ restaurant?.about || ""}
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                          minHeight: "100px",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+
+              {/* Restaurant Category */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="restaurant_category"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Restaurant Category:*</label>
+                      <Select
+                        {...field}
+                        required
+                        fullWidth
+                        variant="outlined"
+                        value={field.value || ""}
+                        style={{
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      >
+                        <MenuItem value="">
+                          <em>None</em>
+                        </MenuItem>
+                        <MenuItem value="Restaurant">Restaurant</MenuItem>
+                        <MenuItem value="Fast Food">Fast Food</MenuItem>
+                        <MenuItem value="Casual Dining">Casual Dining</MenuItem>
+                        <MenuItem value="Fine Dining">Fine Dining</MenuItem>
+                        <MenuItem value="Cafe">Cafe</MenuItem>
+                        <MenuItem value="Buffet">Buffet</MenuItem>
+                        <MenuItem value="Pub">pub</MenuItem>
+                        <MenuItem value="Hotel">Hotel</MenuItem>
+                        <MenuItem value="Food Truck">Food Truck</MenuItem>
+                      </Select>
+                    </Box>
+                  )}
+                />
+              </Grid>
+
+                            {/* Cuisine Type */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="cuisine_type"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Cuisine Type:</label>
+                      <Select
+                        {...field}
+                        fullWidth
+                        variant="outlined"
+                        style={{
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      >
+                        <MenuItem value="">
+                          <em>None</em>
+                        </MenuItem>
+                        <MenuItem value="Italian">Italian</MenuItem>
+                        <MenuItem value="Chinese">Chinese</MenuItem>
+                        <MenuItem value="Indian">Indian</MenuItem>
+                        <MenuItem value="Mexican">Mexican</MenuItem>
+                        <MenuItem value="Japanese">Japanese</MenuItem>
+                        <MenuItem value="French">French</MenuItem>
+                        <MenuItem value="Thai">Thai</MenuItem>
+                        <MenuItem value="Mediterranean">Mediterranean</MenuItem>
+                      </Select>
+                    </Box>
+                  )}
+                />
+              </Grid>
+
+             
+              <Grid item xs={12}>
+  <label>Thumbnail Image:*</label>
+  <Box
+    {...getRootPropsThumbnail()}
+    style={{
+      padding: "25px",
+      border: "2px dashed #ccc",
+      textAlign: "center",
+      marginTop: "10px",
+      cursor: "pointer",
+      position: "relative",
+    }}
+  >
+    <input {...getInputPropsThumbnail()} />
+    {isDragActiveThumbnail ? (
+      <p>Drop the photo here...</p>
+    ) : uploadedImage ? (
+      <Box sx={{ position: "relative", display: "inline-block", textAlign: "center", maxWidth: "200px" }}>
+  <img
+    src={URL.createObjectURL(uploadedImage)}
+    alt="Thumbnail"
+    style={{ 
+      width: "200px", 
+      marginBottom: "10px", 
+      borderRadius: "8px", 
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" 
+    }}
+  />
+  <IconButton
+    onClick={(e) => {
+      e.stopPropagation();
+      setUploadedImage(null);
+    }}
+    sx={{
+      position: "absolute",
+      top: "5px",
+      right: "5px",
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      borderRadius: "50%",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+      transform: "translateX(50%)" // Move button outside the image
+    }}
+    size="small"
+  >
+    <DeleteOutline />
+  </IconButton>
+  <Typography 
+    variant="body2" 
+    sx={{ 
+      marginTop: "8px",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      width: "100%"
+    }}
+  >
+    {uploadedImage.name}
+  </Typography>
+</Box>
+    ) : restaurant?.thumbnail_photo ? (
+      <Box sx={{ position: "relative", display: "inline-block", textAlign: "center"  }}>
+        <img
+          src={typeof restaurant.thumbnail_photo === 'string' ? restaurant.thumbnail_photo : URL.createObjectURL(restaurant.thumbnail_photo)}
+          alt="Thumbnail"
+          style={{ width: "200px", marginBottom: "10px", borderRadius: "8px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+        />
+        
+        <Typography variant="body2" sx={{ marginTop: "8px", width : "200px", display: "flex", color : "#FF0000" } }>Drag and drop a photo to replace the thumbnail</Typography>
+      </Box>
+    ) : (
+      <p>Drag & drop or click to upload a photo</p>
+    )}
+  </Box>
+</Grid>
+          
+              {/* Social Links */}
+              <Grid item xs={12}>
+                <Typography variant="h5">Social Links</Typography>
+                <Divider />
+              </Grid>
+          
+              {/* Website */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="website"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Website:</label>
+                      <input
+                        {...field}
+                        type="url"
+                        
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              
+          
+              {/* Twitter */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="social_media.twitter"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Twitter:</label>
+                      <input
+                        {...field}
+                        type="url"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* Instagram */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="social_media.instagram"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Instagram:</label>
+                      <input
+                        {...field}
+                        type="url"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* TikTok */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="social_media.tiktok"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>TikTok:</label>
+                      <input
+                        {...field}
+                        type="url"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* Location */}
+              <Grid item xs={12}>
+                <Typography variant="h5">Location</Typography>
+                <Divider />
+              </Grid>
+          
+              {/* Location */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="location"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Location:*</label>
+                      <input
+                        {...field}
+                        type="text"
+                        required
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+             
+          
+              
+          
+                            {/* Country */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="country"
+                  control={control}
+                  defaultValue="canada"
+                  render={({ field }) => (
+                    <Box>
+                      <label>Country:*</label>
+                      <Select
+                        {...field}
+                        fullWidth
+                        required
+                        variant="outlined"
+                        style={{
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      >
+                        <MenuItem value="Canada">Canada</MenuItem>
+                        <MenuItem value="Sri Lanka">Sri Lanka</MenuItem>
+                      </Select>
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* Postal Code */}
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name="postal_code"
+                  control={control}
+                  render={({ field }) => (
+                    <Box>
+                      <label>Postal Code:</label>
+                      <input
+                        {...field || {}}
+                        type="text"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginTop: "4px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  )}
+                />
+              </Grid>
+
+
+{/* Opening Hours */}
+<Grid item xs={12}>
+  <Typography variant="h5">Opening Hours</Typography>
+  <Divider />
+</Grid>
+
+<Grid container spacing={2} sx={{ marginTop: '2px' }}>
+  <Grid item xs={12} md={6}>
+    {['Monday', 'Tuesday', 'Wednesday', 'Thursday'].map((day) => (
+      <Grid container spacing={2} key={day} alignItems="center" style={{ marginTop: '0px', marginLeft: '8px' }}> {/* Reduced marginTop */}
+        <Grid item xs={12} sm={6} md={4}>
+          <Typography style={{ marginBottom: '2px' }}>{day}</Typography> {/* Reduced margin-bottom */}
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} style={{ marginTop: '0px', marginLeft: '-50px' }}>
+          <Controller
+            name={`opening_hours.${day.toLowerCase()}.open`}
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field || {}}
+                type="time"
+                value={field.value || ""}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginTop: "0px", // Reduced marginTop to 0px
+                  borderRadius: "6px",
+                  border: "1px solid #ccc",
+                }}
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <Controller
+            name={`opening_hours.${day.toLowerCase()}.close`}
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field || {}}
+                type="time"
+                value={field.value || ""}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginTop: "0px", // Reduced marginTop to 0px
+                  borderRadius: "6px",
+                  border: "1px solid #ccc",
+                }}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+    ))}
+  </Grid>
+  <Grid item xs={12} md={6} >
+    {['Friday', 'Saturday', 'Sunday'].map((day) => (
+      <Grid container spacing={2} key={day} alignItems="center" style={{ marginTop: '0px', marginLeft: '20px' }}> {/* Reduced marginTop */}
+        <Grid item xs={12} sm={6} md={4} >
+          <Typography style={{ marginBottom: '2px' }}>{day}</Typography> {/* Reduced margin-bottom */}
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} style={{ marginTop: '0px', marginLeft: '-50px' }}>
+          <Controller
+            name={`opening_hours.${day.toLowerCase()}.open`}
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="time"
+                value={field.value || ""}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginTop: "0px", // Reduced marginTop to 0px
+                  borderRadius: "6px",
+                  border: "1px solid #ccc",
+                }}
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <Controller
+            name={`opening_hours.${day.toLowerCase()}.close`}
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="time"
+                value={field.value || ""}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginTop: "0px", // Reduced marginTop to 0px
+                  borderRadius: "6px",
+                  border: "1px solid #ccc",
+                }}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+    ))}
+  </Grid>
+</Grid>
+
+              
+         {/* Gallery Section */}
+<Grid item xs={12}>
+  <label>Gallery Photos:</label>
+  <Box
+    {...getRootPropsGallery()}
+    style={{
+      padding: "25px",
+      border: "2px dashed #ccc",
+      textAlign: "center",
+      marginTop: "10px",
+      cursor: "pointer",
+      minHeight: "200px"
+    }}
+  >
+    <input {...getInputPropsGallery()} multiple />
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+      {/* Existing Images */}
+      {existingImages.map((imageUrl, index) => (
+        <Box 
+          key={`existing-${index}`}
+          sx={{
+            position: 'relative',
+            width: 150,
+            height: 150,
+            border: '1px solid #eee',
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}
+        >
+          <img
+            src={imageUrl}
+            alt={`Gallery ${index}`}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setExistingImages(prev => prev?.filter((_, i) => i !== index));
+            }}
+            sx={{
+              position: "absolute",
+              top: "5px",
+              right: "5px",
+              backgroundColor: "rgba(255,255,255,0.8)",
+              padding: "4px"
+            }}
+            size="small"
+          >
+            <DeleteOutline />
+          </IconButton>
+        </Box>
+      ))}
+
+      {/* New Images */}
+      {newImages.map((image, index) => (
+        <Box 
+          key={`new-${index}`}
+          sx={{
+            position: 'relative',
+            width: 150,
+            height: 150,
+            border: '1px solid #eee',
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}
+        >
+          <img
+            src={URL.createObjectURL(image)}
+            alt={`New Gallery ${index}`}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setNewImages(prev => prev.filter((_, i) => i !== index));
+            }}
+            sx={{
+              position: "absolute",
+              top: "5px",
+              right: "5px",
+              backgroundColor: "rgba(255,255,255,0.8)",
+              padding: "4px"
+            }}
+            size="small"
+          >
+            <DeleteOutline />
+          </IconButton>
+        </Box>
+      ))}
+    </Box>
+    {(existingImages.length === 0 && newImages.length === 0) && (
+      <p>Drag & drop or click to upload gallery photos</p>
+    )}
+  </Box>
+</Grid>
+
+
+        </Grid>
+      </TabPanel>
+
+          {/* Facilities Tab */}
+          <TabPanel value={activeTab} index={1}>
+            <Grid container spacing={3} >
+              {/* Food and Dining */}
+              <Grid item xs={12}>
+                <Controller
+                  name={`facility.categories.0.facilities`}
+                  control={control}
+                  render={({ field }) => (
+                    <Box style={{ padding: '16px', borderRadius: 8, backgroundColor: '#f4f4f4' }}>
+                      <Typography variant="h6" style={{ fontWeight: 'bold' }}>Food & Dining:</Typography>
+                      <Grid container spacing={2} style={{ marginTop: 8 }}>
+                        {[
+                          { label: 'Patio', value: 'patio' },
+                          { label: 'Buffet', value: 'buffet' },
+                          { label: 'Vegan food', value: 'veganFood' },
+                          { label: 'Halal foods', value: 'halalFoods' },
+                          { label: 'Reservations', value: 'reservations' },
+                          { label: 'Nuts-free foods', value: 'nutsFreeFoods' },
+                          { label: 'Gluten-free foods', value: 'glutenFreeFoods' },
+                          { label: 'Birthday discounts', value: 'birthdayDiscounts' },
+                          { label: 'Credit card payment', value: 'creditCardPayment' },
+                          { label: 'Birthday celebration', value: 'birthdayCelebration' },
+                        ].map((item, index) => (
+                          <Grid item xs={12} sm={6} md={4} key={index}>
+                            <label style={{ display: 'flex', alignItems: 'center' }}>
+                              <Checkbox
+                                {...field}
+                                value={item.value}
+                                checked={field.value?.[item.value] ?? false}
+                                onChange={(e) => {
+                                  const updatedFacilities = {
+                                    ...field.value,
+                                    [item.value]: e.target.checked
+                                  };
+                                  field.onChange(updatedFacilities);
+                                }}
+                                style={{ marginRight: 4}}
+                              />
+                              {item.label}
+                            </label>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Box>
+                  )}
+                />
+                
+              </Grid>
+          
+              {/* Family */}
+              <Grid item xs={12}>
+                <Controller
+                  name={`facility.categories.1.facilities`}
+                  control={control}
+                  render={({ field }) => (
+                    <Box style={{ padding: '16px', borderRadius: 8, backgroundColor: '#f4f4f4' }}>
+                      <Typography variant="h6" style={{ fontWeight: 'bold' }}>Family:</Typography>
+                      <Grid container spacing={2} style={{ marginTop: 8 }}>
+                        {[
+                          { label: 'Family rooms', value: 'familyRooms' },
+                          { label: 'Kids play area', value: 'kidsPlayArea' },
+                          { label: 'Crayons for kids', value: 'crayonsForKids' },
+                          { label: 'Diaper change room', value: 'diaperChangeRoom' },
+                          { label: 'Highchair for kids', value: 'highchairForKids' },
+                        ].map((item, index) => (
+                          <Grid item xs={12} sm={6} md={4} key={index}>
+                            <label style={{ display: 'flex', alignItems: 'center' }}>
+                              <Checkbox
+                                {...field}
+                                value={item.value}
+                                checked={field.value?.[item.value] ?? false}
+                                onChange={(e) => {
+                                  const updatedFacilities = {
+                                    ...field.value,
+                                    [item.value]: e.target.checked
+                                  };
+                                  field.onChange(updatedFacilities);
+                                }}
+                                style={{ marginRight: 4}}
+                              />
+                              {item.label}  
+                            </label>
+                               
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Box>
+                  )}
+                />
+              </Grid>
+          
+              {/* Entertainment */}
+              <Grid item xs={12}>
+                <Controller
+                  name={`facility.categories.2.facilities`}
+                  control={control}
+                  render={({ field }) => (
+                    <Box style={{ padding: '16px', borderRadius: 8, backgroundColor: '#f4f4f4' }}>
+                      <Typography variant="h6" style={{ fontWeight: 'bold' }}>Entertainment:</Typography>
+                      <Grid container spacing={2} style={{ marginTop: 8 }}>
+                        {[
+                          { label: 'DJ', value: 'dj' },
+                          { label: 'TV', value: 'tv' },
+                          { label: 'Wifi', value: 'wifi' },
+                          { label: 'Music', value: 'music' },
+                          { label: 'Live band', value: 'liveBand' },
+                          { label: 'Front desk', value: 'frontDesk' },
+                          { label: 'Pool table', value: 'poolTable' },
+                          { label: 'Free parking', value: 'freeParking' },
+                          { label: 'Meeting area', value: 'MeetingArea' },
+                          { label: 'Conference room', value: 'conferenceRoom' },
+                        ].map((item, index) => (
+                          <Grid item xs={12} sm={6} md={4} key={index}>
+                            <label style={{ display: 'flex', alignItems: 'center' }}>
+                              <Checkbox
+                               {...field}
+                               value={item.value}
+                               checked={field.value?.[item.value] ?? false}
+                               onChange={(e) => {
+                                const updatedFacilities = {
+                                  ...field.value,
+                                  [item.value]: e.target.checked
+                                };
+                                field.onChange(updatedFacilities);
+                              }}
+                               style={{ marginRight: 4 }}
+                              />
+                              
+                              {item.label}
+                            </label>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Box>
+                  )}
+                />
+              </Grid>
+            </Grid>
+          </TabPanel>
+
+          <DialogActions>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button type="submit" color="primary" 
+            sx={{backgroundColor: '#1976d2', color: '#fff', '&:hover': { backgroundColor: '#1565c0' }}}>
+              Save Changes
+            </Button>
+          </DialogActions>
+        </form>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} color="primary">
-          Save
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

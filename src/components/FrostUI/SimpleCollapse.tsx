@@ -8,7 +8,7 @@ interface CollapseProps {
 }
 
 const SimpleCollapse: FC<CollapseProps> = ({ open, children, classNames, as: tag = 'div' }) => {
-	const ref: RefObject<HTMLDivElement> = useRef(null)
+	const ref = useRef<HTMLDivElement>(null)
 	const height = open ? ref.current?.scrollHeight ?? 0 : 0
 	const Tag = tag
 	return (

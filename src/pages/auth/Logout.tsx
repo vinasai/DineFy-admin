@@ -71,7 +71,7 @@ const BottomLink = () => {
   return (
     <div className="text-center my-4">
       <p className="text-muted">
-        Already have account?{" "}
+        Get back to the login page?{" "}
         <Link
           to="/auth/login"
           className="text-muted ms-1 link-offset-3 underline underline-offset-4"
@@ -101,7 +101,7 @@ const Logout = () => {
         <div className="relative flex flex-col items-center justify-center h-screen">
           <AuthLayout
             authTitle="See You Again !"
-            helpText="You are now successfully sign out."
+            helpText="You have loged out."
             bottomLinks={<BottomLink />}
           >
             <div className="w-36 ml-[100px] mr-[100px]">

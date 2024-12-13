@@ -1,31 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TextField, Box, IconButton, Tooltip, Button } from "@mui/material";
 import CopyAllIcon from "@mui/icons-material/CopyAll";
 import { useCreateSignUpApiMutation } from "@/redux/api/signup/signUpApiSlice";
 import UserDetailsModal from "../Modals/UserDetailsModal";
 
 interface Step3GenerateCredentialsProps {
-  name: string;
+  email: string;
+  setCredentials: React.Dispatch<React.SetStateAction<{ email: string; password: string }[]>>;
 }
 
 const Step3GenerateCredentials: React.FC<Step3GenerateCredentialsProps> = ({
-  name,
+  email,
+  setCredentials,
 }) => {
-  // Process the name to create email
-  const trimmedName = name.trim().toLowerCase().replace(/\s+/g, "");
-  const email = `${trimmedName}@dinefy.ca`;
+  const [password, setPassword] = useState<string>(""); // State for password
 
-  // Generate a random password
   const generatePassword = () => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
-    let password = "";
+    let generatedPassword = "";
     for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+      generatedPassword += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return password;
+    return generatedPassword;
   };
-  const password = generatePassword();
+
+  useEffect(() => {
+    const generateCredentials = () => {
+      const pwd = generatePassword();
+      setPassword(pwd); // Update the password state
+      setCredentials([{ email, password: pwd }]); // Update credentials
+    };
+    generateCredentials();
+  }, [email, setCredentials]);
 
   // Copy email and password to clipboard
   const handleCopy = () => {
@@ -45,10 +52,10 @@ const Step3GenerateCredentials: React.FC<Step3GenerateCredentialsProps> = ({
   const handleAddToSystem = async () => {
     try {
       const response = await createSignUpApi({ email, password }).unwrap();
-      console.log(response);
+      console.log("API Response:", response);
 
       // Set user ID and open the modal
-      const userId = await response?.user?.id; // Access the id from the nested user object
+      const userId = response?.user?.id; // Access the id from the nested user object
       setUserId(userId);
       setOpen(true);
     } catch (error: any) {
@@ -57,7 +64,7 @@ const Step3GenerateCredentials: React.FC<Step3GenerateCredentialsProps> = ({
   };
 
   return (
-    <Box className="space-y-4">
+    <Box className="space-y-4 mt-4">
       <div>
         <label>Email</label>
         <TextField
@@ -85,16 +92,7 @@ const Step3GenerateCredentials: React.FC<Step3GenerateCredentialsProps> = ({
           </IconButton>
         </Tooltip>
 
-        {/* Add to System button */}
-        <Tooltip title="Add to System">
-          <Button
-            onClick={handleAddToSystem}
-            variant="contained"
-            color="secondary"
-          >
-            Add to System
-          </Button>
-        </Tooltip>
+       
       </div>
 
       {/* Pass the userId to the modal */}

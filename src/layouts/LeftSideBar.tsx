@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../redux/store'
 import { changeSideBarType } from '../redux/actions'
 import { SideBarType } from '../constants'
+import { hi } from 'date-fns/locale'
 
 /* Sidebar content */
 const SideBarContent = () => {
@@ -24,9 +25,11 @@ interface LeftSideBarProps {
 	isLight: boolean
 	hideUserProfile: boolean
 	hideLogo?: boolean
+
 }
 
 const LeftSideBar = ({ hideLogo }: LeftSideBarProps) => {
+	console.log(hi)
 	const dispatch = useDispatch<AppDispatch>()
 
 	const { sideBarType } = useSelector((state: RootState) => ({
@@ -47,7 +50,6 @@ const LeftSideBar = ({ hideLogo }: LeftSideBarProps) => {
 		<React.Fragment>
 			<div className="app-menu" ref={menuNodeRef}>
 				{!hideLogo && <LogoBox />}
-
 				<button id="button-hover-toggle" className="absolute top-5 end-2 rounded-full p-1.5 z-50" onClick={handleHoverMenu}>
 					<span className="sr-only">Menu Toggle Button</span>
 					<i className="ri-checkbox-blank-circle-line text-xl"></i>

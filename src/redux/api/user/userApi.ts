@@ -1,3 +1,4 @@
+
 import { apiSlice } from "../apiSlice";
 import { supabase } from "@/api/client";
 
@@ -6,7 +7,7 @@ const userApi = apiSlice.injectEndpoints({
     getUserApi: builder.query({
       // Fetch data from the "owner" table
       async queryFn(_arg, _api, _extraOptions, _baseQuery) {
-        const { data, error } = await supabase.from("profiles").select("*");
+        const { data, error } = await supabase.from("profiles").select("*").eq("role", "user");
 
         if (error) {
           return {
@@ -25,7 +26,7 @@ const userApi = apiSlice.injectEndpoints({
     createUserApi: builder.mutation({
       // Insert new data into the "owner" table
       async queryFn(arg, _api, _extraOptions, _baseQuery) {
-        const { data, error } = await supabase.from("owner").insert(arg);
+        const { data, error } = await supabase.from("profiles").insert(arg);
 
         if (error) {
           return {
@@ -44,11 +45,23 @@ const userApi = apiSlice.injectEndpoints({
     updateUserApi: builder.mutation({
       // Update existing data in the "owner" table
       async queryFn(arg, _api, _extraOptions, _baseQuery) {
-        const { id, ...updateData } = arg; // Extract ID and data to update
+        //const { id, ...updateData } = arg; // Extract ID and data to update
         const { data, error } = await supabase
-          .from("owner")
-          .update(updateData)
-          .eq("id", id);
+          .from("profiles")
+          .update(
+            {
+              full_name: arg.first_name,
+              avatar_url: arg.last_name,
+              email: arg.email,
+              phone: arg.phone,
+              address : arg.address,
+              gender : arg.gender,
+              dob : arg.dob,
+              country : arg.country,
+              status : arg.isActive,
+            }, 
+          )
+          .eq("id", arg.id);
 
         if (error) {
           return {

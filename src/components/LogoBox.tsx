@@ -8,15 +8,15 @@ import logoDark from '@/assets/images/logo-dark.png'
 const LogoBox = () => {
 	return (
 		<>
-			<Link to="/" className="logo-box">
+			<Link to="../apps/dashboard" className="logo-box">
 				<div className="logo-light">
-					<img src={logo} className="logo-xl h-[40px]" alt="Light logo" />
-					<img src={logoSm} className="logo-sm h-[22px]" alt="Small logo" />
+					<img src={logo} className="logo-lg h-[60px] mt-2" alt="Light logo" />
+					<img src={logoSm} className="logo-sm h-[28px]" alt="Small logo" />
 				</div>
 
 				<div className="logo-dark">
 					<img src={logoDark} className="logo-lg h-[22px]" alt="Dark logo" />
-					<img src={logoSm} className="logo-sm h-[22px]" alt="Small logo" />
+					<img src={logoSm} className="logo-sm h-[28px]" alt="Small logo" />
 				</div>
 			</Link>
 		</>
